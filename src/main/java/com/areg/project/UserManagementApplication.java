@@ -10,6 +10,14 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
+/**
+ * User Management Application
+ *
+ * @since 2024
+ * @version 1.0
+ * @author Areg Abgaryan
+ */
+
 @SpringBootApplication
 @EnableJpaRepositories(basePackages = "com.areg.project.repositories")
 @ComponentScan(basePackages = { "com.areg.project.*" })

@@ -22,15 +22,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-//  This logger gets business logs as input and divides by user ids and session ids to multiple files
+//  FIXME !! Test this logging system
+//  This logger gets business logs as input and divides by user emails and session ids to multiple files
 public class UserSessionLogger {
 
     private static final LoggerContext context = (LoggerContext) LogManager.getContext();
     private static String fileName;
 
-    private static final Map<String, Logger> userSessionToLogger = new HashMap<>();
+    private static final Map<String, Logger> userEmailSessionToLogger = new HashMap<>();
 
-    private static final Cache<String, Logger> userSessionLoggerCache = Caffeine.newBuilder()
+    private static final Cache<String, Logger> userEmailSessionLoggerCache = Caffeine.newBuilder()
             .expireAfterWrite(Duration.ofMinutes(1))
             .maximumSize(100)
             .build();
@@ -51,44 +52,44 @@ public class UserSessionLogger {
     private static final String ZIP_FILE_ENDING = "-%d{MM-dd-yy-HH-mm-ss}-%i.log.gz";
 
 
-    public static void setFileName(String username, String sessionId) {
-        fileName = username + "/" + sessionId;
+    public static void setFileName(String email, String sessionId) {
+        fileName = email + "/" + sessionId;
     }
 
-    public static Logger getLogger(String username, String sessionId) {
-        final String usernameSessionId = buildUsernameSessionKey(username, sessionId);
-        final var loggerFromCache = getLoggerFromCache(usernameSessionId);
-        return loggerFromCache != null ? loggerFromCache : getOrCreateLogger(username, sessionId);
+    public static Logger getLogger(String email, String sessionId) {
+        final String emailSessionId = buildEmailSessionKey(email, sessionId);
+        final var loggerFromCache = getLoggerFromCache(emailSessionId);
+        return loggerFromCache != null ? loggerFromCache : getOrCreateLogger(email, sessionId);
     }
 
-    public static String message(String sessionId, String username, String message) {
-        return String.format("Session id : %s, Username : %s, Message : %s", sessionId, username, message);
+    public static String _msg(String sessionId, String email, String message) {
+        return String.format("Session id : %s, Email : %s, Message : %s", sessionId, email, message);
     }
 
 
     //  Get specific logger for user and session id from the map
-    private static Logger getOrCreateLogger(String username, String sessionId) {
-        final String usernameToSessionId = buildUsernameSessionKey(username, sessionId);
+    private static Logger getOrCreateLogger(String email, String sessionId) {
+        final String emailToSessionId = buildEmailSessionKey(email, sessionId);
 
-        if (userSessionToLogger.containsKey(usernameToSessionId)) {
-            return userSessionToLogger.get(usernameToSessionId);
+        if (userEmailSessionToLogger.containsKey(emailToSessionId)) {
+            return userEmailSessionToLogger.get(emailToSessionId);
         }
         else {
             //  Create a new logger, configure it and put in the map
-            final Logger logger = createAndConfigureLogger(username, sessionId);
-            userSessionToLogger.put(usernameToSessionId, logger);
-            userSessionLoggerCache.put(usernameToSessionId, logger);
+            final Logger logger = createAndConfigureLogger(email, sessionId);
+            userEmailSessionToLogger.put(emailToSessionId, logger);
+            userEmailSessionLoggerCache.put(emailToSessionId, logger);
             return logger;
         }
     }
 
     //  Try to get logger from logging cache
-    private static Logger getLoggerFromCache(String usernameSessionId) {
-        return userSessionLoggerCache.getIfPresent(usernameSessionId);
+    private static Logger getLoggerFromCache(String emailSessionId) {
+        return userEmailSessionLoggerCache.getIfPresent(emailSessionId);
     }
 
-    private static Logger createAndConfigureLogger(String username, String sessionId) {
-        setFileName(username, sessionId);
+    private static Logger createAndConfigureLogger(String email, String sessionId) {
+        setFileName(email, sessionId);
 
         final ConfigurationBuilder<BuiltConfiguration> builder = ConfigurationBuilderFactory.newConfigurationBuilder();
 
@@ -100,10 +101,8 @@ public class UserSessionLogger {
                 .addAttribute(FILE_PATTERN, "src/main/resources/output/logs/" + fileName + ZIP_FILE_ENDING)
                 .add(layoutBuilder)
                 .addComponent(builder.newComponent(POLICIES)
-                        .addComponent(builder.newComponent(SIZE_BASED_TRIGGERING_POLICY)
-                                .addAttribute(SIZE, "10 MB")))
-                .addComponent(builder.newComponent(DEFAULT_ROLLOVER_STRATEGY)
-                        .addAttribute(MAX, "5"));
+                        .addComponent(builder.newComponent(SIZE_BASED_TRIGGERING_POLICY).addAttribute(SIZE, "10 MB")))
+                .addComponent(builder.newComponent(DEFAULT_ROLLOVER_STRATEGY).addAttribute(MAX, "5"));
 
         builder.add(appenderBuilder);
 
@@ -118,14 +117,14 @@ public class UserSessionLogger {
         context.getRootLogger().getAppenders();
 
         final var logger = context.getLogger("");
-        final String userSession = buildUsernameSessionKey(username, sessionId);
-        userSessionToLogger.put(userSession, logger);
-        userSessionLoggerCache.put(userSession, logger);
+        final String userSession = buildEmailSessionKey(email, sessionId);
+        userEmailSessionToLogger.put(userSession, logger);
+        userEmailSessionLoggerCache.put(userSession, logger);
 
         return logger;
     }
 
-    private static String buildUsernameSessionKey(String username, String sessionId) {
-        return username + ":" + sessionId;
+    private static String buildEmailSessionKey(String email, String sessionId) {
+        return email + ":" + sessionId;
     }
 }
