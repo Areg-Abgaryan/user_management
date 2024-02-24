@@ -2,7 +2,7 @@
  * Copyright (c) 2024 Areg Abgaryan
  */
 
-package org.example;
+package com.areg.project;
 
 public class Main {
     public static void main(String[] args) {
