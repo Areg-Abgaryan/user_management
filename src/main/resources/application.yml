@@ -2,9 +2,19 @@ spring:
   security:
     enabled: false
 
-  application:
-    name: @artifactId@
 
+  datasource:
+    url: ${DATASOURCE_URL:jdbc:postgresql://localhost:5432/user_management_db}
+    driver-class-name: org.postgresql.Driver
+    username: ${DATASOURCE_USERNAME:postgres}
+    password: ${DATASOURCE_PASSWORD:Admin@123}
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate.ddl-auto: update
+    show-sql: true   # Set to true to see SQL statements in the console
+    properties:
+      hibernate.format_sql: false
 
 logging:
   level:

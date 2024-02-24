@@ -2,19 +2,19 @@
  * Copyright (c) 2024 Areg Abgaryan
  */
 
-package com.areg.project.model.entity;
+package com.areg.project.models.entities;
 
-import com.areg.project.model.UserStatus;
+import com.areg.project.models.UserStatus;
 import org.springframework.data.annotation.CreatedDate;
 import lombok.Setter;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.Column;
 
 import lombok.Getter;
 
@@ -24,20 +24,18 @@ import java.util.UUID;
 @Entity
 @Getter
 @Setter
-@Table(name = "t_user")
+@Table(name = "t_user", schema = "public")
 public class UserEntity extends BaseEntity {
 
     @Column(name = "external_id", unique = true)
     private UUID externalId;
 
-    @Column(name = "username", unique = true)
-    private String username;
+    @Column(name = "email", unique = true)
+    private String email;
 
     @Column(name = "password")
     private String password;
 
-    @Column(name = "email", unique = true)
-    private String email;
 
     @Column(name = "first_name")
     private String firstName;

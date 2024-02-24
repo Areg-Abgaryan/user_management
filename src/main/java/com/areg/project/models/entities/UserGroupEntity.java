@@ -2,12 +2,12 @@
  * Copyright (c) 2024 Areg Abgaryan
  */
 
-package com.areg.project.model.entity;
+package com.areg.project.models.entities;
 
-import javax.persistence.Entity;
-import javax.persistence.Table;
-import javax.persistence.Column;
-import javax.persistence.OneToMany;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import jakarta.persistence.Column;
+import jakarta.persistence.OneToMany;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -18,7 +18,7 @@ import java.util.UUID;
 @Entity
 @Getter
 @Setter
-@Table(name = "t_user_group")
+@Table(name = "t_user_group", schema = "public")
 public class UserGroupEntity extends BaseEntity {
 
     @Column(name = "external_id")

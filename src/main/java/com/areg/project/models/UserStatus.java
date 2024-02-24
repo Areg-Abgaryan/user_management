@@ -2,7 +2,7 @@
  * Copyright (c) 2024 Areg Abgaryan
  */
 
-package com.areg.project.model;
+package com.areg.project.models;
 
 public enum UserStatus {
     ACTIVE, NOT_ACTIVE, DELETED
