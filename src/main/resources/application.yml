@@ -1,0 +1,17 @@
+spring:
+  security:
+    enabled: false
+
+  application:
+    name: @artifactId@
+
+
+logging:
+  level:
+    root: info
+    com.areg.project: info
+  file:
+    path: src/main/resources/output/logs
+
+server:
+  port: ${SERVER_PORT:8081}
