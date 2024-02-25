@@ -12,8 +12,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface UserRepository extends JpaRepository<UserEntity, Long> {
-    
+public interface IUserRepository extends JpaRepository<UserEntity, Long> {
+
     Optional<UserEntity> findUserEntityByExternalId(UUID userId);
 
     Optional<UserEntity> findUserEntityByEmail(String email);

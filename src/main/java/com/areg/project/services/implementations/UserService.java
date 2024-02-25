@@ -6,8 +6,9 @@ package com.areg.project.services.implementations;
 
 import com.areg.project.models.UserStatus;
 import com.areg.project.models.entities.UserEntity;
-import com.areg.project.repositories.UserRepository;
+import com.areg.project.repositories.IUserRepository;
 import com.areg.project.services.interfaces.IUserService;
+import com.areg.project.utils.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,14 +21,24 @@ import java.util.UUID;
 @Service
 public class UserService implements IUserService {
 
-    private final UserRepository userRepository;
+    private final IUserRepository userRepository;
 
     @Autowired
-    public UserService(UserRepository userRepository) {
+    public UserService(IUserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
 
+    @Override
+    public UserEntity createUser(UserEntity userEntity) {
+        userEntity.setExternalId(UUID.randomUUID());
+        userEntity.setStatus(UserStatus.ACTIVE);
+        userEntity.setCreated(Utils.getCurrentDateAndTime());
+        userEntity.setUpdated(Utils.getCurrentDateAndTime());
+        return userRepository.save(userEntity);
+    }
+
+    @Override
     public UserEntity findUserById(UUID id) throws NoResultException {
         return userRepository.findUserEntityByExternalId(id)
                 .orElseThrow(
@@ -35,7 +46,8 @@ public class UserService implements IUserService {
                 );
     }
 
-    public UserEntity findUserByEmail(String email) throws NoResultException {
+    @Override
+    public UserEntity findUserByEmail(String email) {
         return userRepository.findUserEntityByEmail(email)
                 .orElseThrow(
                         () -> new NoResultException("User with email '" + email + "' not found")
@@ -48,15 +60,7 @@ public class UserService implements IUserService {
         if (userEntity.isEmpty()) {
             return;
         }
-        userEntity.get().setLastLoginTime(lastLoginDate);
+        userEntity.get().setUpdated(lastLoginDate);
         userRepository.save(userEntity.get());
-    }
-
-
-    public UserEntity createUser(UserEntity userEntity) {
-        userEntity.setExternalId(UUID.randomUUID());
-        userEntity.setStatus(UserStatus.ACTIVE);
-        //  FIXME !! Add creation, update times
-        return userRepository.save(userEntity);
     }
 }

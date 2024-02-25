@@ -9,14 +9,10 @@ import com.areg.project.models.dtos.UserSignUpDTO;
 import com.areg.project.models.responses.UserSignUpResponse;
 import com.areg.project.models.entities.UserEntity;
 import com.areg.project.services.implementations.UserService;
-import com.areg.project.utils.Utils;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
-
-import static com.areg.project.logging.UserSessionLogger._msg;
 
 @Service
 public class UserManager {
@@ -32,7 +28,7 @@ public class UserManager {
         this.encryptionManager = encryptionManager;
     }
 
-    public UserSignUpResponse signUp(UserSignUpDTO userSignUpDto, Logger logger) {
+    public UserSignUpResponse signUp(UserSignUpDTO userSignUpDto) {
 
         final UserEntity userEntity = userConverter.fromSignUpInputToEntity(userSignUpDto);
         final String salt = encryptionManager.generateSalt();
@@ -44,7 +40,7 @@ public class UserManager {
         final UserEntity savedUserEntity = userService.createUser(userEntity);
         final UserSignUpResponse savedUserDto = userConverter.fromEntityToSignUpResponse(savedUserEntity);
 
-        logger.info(_msg(Utils.getSessionId(), savedUserDto.getId().toString(), "User was successfully added"));
+        //logger.info(_msg(Utils.getSessionId(), savedUserDto.getId().toString(), "User was successfully added"));
         return savedUserDto;
     }
 

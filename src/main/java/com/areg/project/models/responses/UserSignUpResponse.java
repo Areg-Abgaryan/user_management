@@ -19,15 +19,11 @@ import java.util.UUID;
 @NoArgsConstructor
 public class UserSignUpResponse {
 
-    private UUID id;
+    @NotBlank private UUID id;
 
-    @Email
-    private String email;
+    @NotBlank @Email private String email;
 
-    @NotBlank
-    private String firstName;
+    @NotBlank private String firstName;
 
-    @NotBlank
-    private String lastName;
-
+    @NotBlank private String lastName;
 }

@@ -11,25 +11,17 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.UUID;
-
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Getter
 @Setter
 @NoArgsConstructor
 public class UserSignUpDTO {
 
-    private UUID id;
+    @NotBlank @Email private String email;
 
-    @Email
-    private String email;
+    @NotBlank private String password;
 
-    @NotBlank
-    private String password;
+    @NotBlank private String firstName;
 
-    @NotBlank
-    private String firstName;
-
-    @NotBlank
-    private String lastName;
+    @NotBlank private String lastName;
 }

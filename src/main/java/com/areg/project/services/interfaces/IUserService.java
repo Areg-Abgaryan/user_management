@@ -10,6 +10,8 @@ import java.util.UUID;
 
 public interface IUserService {
 
+    UserEntity createUser(UserEntity userEntity);
+
     UserEntity findUserById(UUID id);
 
     UserEntity findUserByEmail(String email);

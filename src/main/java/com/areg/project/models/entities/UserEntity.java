@@ -22,9 +22,8 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Getter
-@Setter
-@Table(name = "t_user", schema = "public")
+@Getter @Setter
+@Table(name = "user", schema = "public")
 public class UserEntity extends BaseEntity {
 
     @Column(name = "external_id", unique = true)
@@ -48,10 +47,6 @@ public class UserEntity extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
     private UserStatus status;
-
-    @CreatedDate
-    @Column(name = "last_login")
-    private LocalDateTime lastLoginTime;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_group_id")

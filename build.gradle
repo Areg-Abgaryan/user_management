@@ -1,5 +1,7 @@
 plugins {
-    id 'java'
+    id ('org.springframework.boot') version '3.2.3'
+    id ("io.spring.dependency-management") version "1.1.4"
+    id ('java')
 }
 
 group 'org.example'
@@ -12,40 +14,31 @@ repositories {
 dependencies {
 
     //  Spring Boot
-    implementation('org.springframework.boot:spring-boot-starter-web:3.1.3') {
-        // Logging
-        exclude module: "logback-classic"
-        exclude module: "spring-boot-starter-logging"
-        exclude module: "log4j2"
-    }
+    implementation ('org.springframework.boot:spring-boot-starter-web:3.2.3')
+
     //  Spring Data JPA
-    implementation group: 'org.springframework.data', name: 'spring-data-jpa', version: '3.2.3'
-
-    //  Jakarta Persistence
-    implementation group: 'jakarta.persistence', name: 'jakarta.persistence-api', version: '3.2.0-M1'
-
-    //  Jakarta Validation
-    implementation group: 'jakarta.validation', name: 'jakarta.validation-api', version: '3.1.0-M1'
-
-    //  Apache Shiro
-    implementation group: 'org.apache.shiro', name: 'shiro-core', version: '2.0.0-alpha-4'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa:3.2.3'
 
     //  Lombok
-    compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.30'
+    annotationProcessor ('org.projectlombok:lombok:1.18.30')
+    compileOnly ('org.projectlombok:lombok:1.18.30')
 
-    //  Caffeine cache
-    implementation group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '3.1.8'
+    //  PostgreSQL
+    implementation ('org.postgresql:postgresql:42.7.2')
+
+    //  Jakarta Validation
+    implementation ('jakarta.validation:jakarta.validation-api:3.1.0-M1')
+
+    //  Apache Shiro
+    implementation ('org.apache.shiro:shiro-core:2.0.0-alpha-4')
 
     //  Swagger
-    implementation group: 'io.springfox', name: 'springfox-swagger2', version: '3.0.0'
-
-    //  Apache Logging
-    implementation group: 'org.apache.logging.log4j', name: 'log4j-core', version: '3.0.0-beta2'
+    implementation ('org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0')
 
     //  Other
-    implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.14.0'
+    implementation ('org.apache.commons:commons-lang3:3.14.0')
 }
 
 test {
-    useTestNG()
+    useJUnitPlatform()
 }
