@@ -4,65 +4,36 @@
 
 package com.areg.project.converters;
 
-import com.areg.project.models.dtos.UserInputDTO;
-import com.areg.project.models.dtos.UserOutputDTO;
+import com.areg.project.models.dtos.UserSignUpDTO;
+import com.areg.project.models.responses.UserSignUpResponse;
 import com.areg.project.models.entities.UserEntity;
 import org.springframework.stereotype.Component;
-
-import java.util.Collections;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Component
 public class UserConverter {
 
-    public Set<UserInputDTO> fromEntityToDto(Set<UserEntity> userEntities) {
-
-        if (userEntities == null || userEntities.isEmpty()) {
-            return Collections.emptySet();
-        }
-
-        return userEntities.stream().map(this::fromEntityToDto).filter(Objects::nonNull).collect(Collectors.toSet());
-    }
-
-    public UserInputDTO fromEntityToDto(UserEntity userEntity) {
-
+    public UserSignUpResponse fromEntityToSignUpResponse(UserEntity userEntity) {
         if (userEntity == null) {
             return null;
         }
 
-        final var userDTO = new UserInputDTO();
-        userDTO.setId(userEntity.getExternalId());
-        userDTO.setEmail(userEntity.getEmail());
-        userDTO.setPassword(userEntity.getPassword());
-        userDTO.setFirstName(userEntity.getFirstName());
-        userDTO.setLastName(userEntity.getLastName());
-        return userDTO;
+        final var userDto = new UserSignUpResponse();
+        userDto.setId(userEntity.getExternalId());
+        userDto.setEmail(userEntity.getEmail());
+        userDto.setFirstName(userEntity.getFirstName());
+        userDto.setLastName(userEntity.getLastName());
+        return userDto;
     }
 
-    public UserOutputDTO fromEntityToOutputDto(UserEntity userEntity) {
-        if (userEntity == null) {
-            return null;
-        }
-
-        final var userDTO = new UserOutputDTO();
-        userDTO.setId(userEntity.getExternalId());
-        userDTO.setEmail(userEntity.getEmail());
-        userDTO.setFirstName(userEntity.getFirstName());
-        userDTO.setLastName(userEntity.getLastName());
-        return userDTO;
-    }
-
-    public UserEntity fromInputDtoToEntity(UserInputDTO userInputDto) {
-        if (userInputDto == null) {
+    public UserEntity fromSignUpInputToEntity(UserSignUpDTO userSignUpDto) {
+        if (userSignUpDto == null) {
             return null;
         }
 
         final var userEntity = new UserEntity();
-        userEntity.setEmail(userInputDto.getEmail());
-        userEntity.setFirstName(userInputDto.getFirstName());
-        userEntity.setLastName(userInputDto.getLastName());
+        userEntity.setEmail(userSignUpDto.getEmail());
+        userEntity.setFirstName(userSignUpDto.getFirstName());
+        userEntity.setLastName(userSignUpDto.getLastName());
         return userEntity;
     }
 }

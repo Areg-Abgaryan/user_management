@@ -5,8 +5,8 @@
 package com.areg.project.managers;
 
 import com.areg.project.converters.UserConverter;
-import com.areg.project.models.dtos.UserInputDTO;
-import com.areg.project.models.dtos.UserOutputDTO;
+import com.areg.project.models.dtos.UserSignUpDTO;
+import com.areg.project.models.responses.UserSignUpResponse;
 import com.areg.project.models.entities.UserEntity;
 import com.areg.project.services.implementations.UserService;
 import com.areg.project.utils.Utils;
@@ -32,26 +32,24 @@ public class UserManager {
         this.encryptionManager = encryptionManager;
     }
 
-    public UserOutputDTO signUp(UserInputDTO userInputDto, Logger logger) {
+    public UserSignUpResponse signUp(UserSignUpDTO userSignUpDto, Logger logger) {
 
-        final String email = userInputDto.getEmail();
-        logger.info(_msg(Utils.getSessionId(), email, "Request for registering a new user : " + email));
-
-        final UserEntity userEntity = userConverter.fromInputDtoToEntity(userInputDto);
+        final UserEntity userEntity = userConverter.fromSignUpInputToEntity(userSignUpDto);
         final String salt = encryptionManager.generateSalt();
         userEntity.setSalt(salt);
 
-        final String encryptedPassword = encryptionManager.encrypt(userInputDto.getPassword(), salt);
+        final String encryptedPassword = encryptionManager.encrypt(userSignUpDto.getPassword(), salt);
         userEntity.setPassword(encryptedPassword);
 
-        final UserOutputDTO savedUserDto = userConverter.fromEntityToOutputDto(userService.createUser(userEntity));
+        final UserEntity savedUserEntity = userService.createUser(userEntity);
+        final UserSignUpResponse savedUserDto = userConverter.fromEntityToSignUpResponse(savedUserEntity);
 
         logger.info(_msg(Utils.getSessionId(), savedUserDto.getId().toString(), "User was successfully added"));
         return savedUserDto;
     }
 
-    public UserOutputDTO findUserById(UUID id) {
+    public UserSignUpResponse findUserById(UUID id) {
         final UserEntity userEntity = userService.findUserById(id);
-        return userConverter.fromEntityToOutputDto(userEntity);
+        return userConverter.fromEntityToSignUpResponse(userEntity);
     }
 }

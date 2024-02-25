@@ -2,14 +2,14 @@
  * Copyright (c) 2024 Areg Abgaryan
  */
 
-package com.areg.project.models.dtos;
+package com.areg.project.models.responses;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.apache.logging.log4j.core.config.plugins.validation.constraints.NotBlank;
 
 import java.util.UUID;
 
@@ -17,7 +17,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor
-public class UserInputDTO {
+public class UserSignUpResponse {
 
     private UUID id;
 
@@ -25,11 +25,9 @@ public class UserInputDTO {
     private String email;
 
     @NotBlank
-    private String password;
-
-    @NotBlank
     private String firstName;
 
     @NotBlank
     private String lastName;
+
 }

@@ -56,6 +56,7 @@ public class UserService implements IUserService {
     public UserEntity createUser(UserEntity userEntity) {
         userEntity.setExternalId(UUID.randomUUID());
         userEntity.setStatus(UserStatus.ACTIVE);
+        //  FIXME !! Add creation, update times
         return userRepository.save(userEntity);
     }
 }

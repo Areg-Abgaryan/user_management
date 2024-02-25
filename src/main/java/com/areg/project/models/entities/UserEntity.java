@@ -36,7 +36,6 @@ public class UserEntity extends BaseEntity {
     @Column(name = "password")
     private String password;
 
-
     @Column(name = "first_name")
     private String firstName;
 

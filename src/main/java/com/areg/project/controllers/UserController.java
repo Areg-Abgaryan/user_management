@@ -6,8 +6,8 @@ package com.areg.project.controllers;
 
 import com.areg.project.logging.UserSessionLogger;
 import com.areg.project.managers.UserManager;
-import com.areg.project.models.dtos.UserInputDTO;
-import com.areg.project.models.dtos.UserOutputDTO;
+import com.areg.project.models.dtos.UserSignUpDTO;
+import com.areg.project.models.responses.UserSignUpResponse;
 import com.areg.project.utils.Utils;
 
 import io.swagger.annotations.Api;
@@ -36,7 +36,8 @@ import static com.areg.project.logging.UserSessionLogger._msg;
 @Api(value = "User Controller", tags = { "User Controller" })
 public class UserController {
 
-    private static String sessionId, email;
+    private static String sessionId;
+    private static String email;
     private static Logger logger;
 
     private final UserManager userManager;
@@ -49,22 +50,24 @@ public class UserController {
 
     @ApiOperation(value = "Get user", notes = "The user with the selected id is returned")
     @GetMapping("/user/{id}")
-    public ResponseEntity<UserOutputDTO> getUser(@PathVariable("id") UUID id) {
+    public ResponseEntity<UserSignUpResponse> getUser(@PathVariable("id") UUID id) {
         return ResponseEntity.ok(userManager.findUserById(id));
     }
 
     @ApiOperation(value = "User Sign up", notes = "Registration of a new user in the system")
     @PostMapping("/user/signup")
-    public ResponseEntity<?> signUp(@RequestBody UserInputDTO userInputDTO) {
+    public ResponseEntity<?> signUp(@RequestBody UserSignUpDTO userSignUpDto) {
 
-        initUserSessionLogger(userInputDTO);
+        initUserEmailSession(userSignUpDto);
+
+        logger.info(_msg(Utils.getSessionId(), email, "Request for registering a new user : " + email));
 
         try {
-            if (! isValidUserDTO(userInputDTO)) {
+            if (! isValidUserDTO(userSignUpDto)) {
                 logger.error(_msg(sessionId, email, "Invalid data provided for the user : " + email));
                 throw new InvalidObjectException("Data cannot be empty");
             }
-            return ResponseEntity.ok(userManager.signUp(userInputDTO, logger));
+            return ResponseEntity.ok(userManager.signUp(userSignUpDto, logger));
         } catch (InvalidObjectException e) {
             logger.error(_msg(sessionId, email, "Invalid data provided"));
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid data provided");
@@ -74,14 +77,14 @@ public class UserController {
         }
     }
 
-    private static void initUserSessionLogger(UserInputDTO userInputDTO) {
+    private static void initUserEmailSession(UserSignUpDTO userSignUpDto) {
         sessionId = Utils.getSessionId();
-        email = userInputDTO.getEmail();
+        email = userSignUpDto.getEmail();
         logger = UserSessionLogger.getLogger(email, sessionId);
     }
 
-    private boolean isValidUserDTO(UserInputDTO userInputDTO) {
-        return StringUtils.isNotBlank(userInputDTO.getEmail()) && StringUtils.isNotBlank(userInputDTO.getPassword())
-                && StringUtils.isNotBlank(userInputDTO.getFirstName()) && StringUtils.isNotBlank(userInputDTO.getLastName());
+    private boolean isValidUserDTO(UserSignUpDTO userSignUpDto) {
+        return StringUtils.isNotBlank(userSignUpDto.getEmail()) && StringUtils.isNotBlank(userSignUpDto.getPassword())
+                && StringUtils.isNotBlank(userSignUpDto.getFirstName()) && StringUtils.isNotBlank(userSignUpDto.getLastName());
     }
 }

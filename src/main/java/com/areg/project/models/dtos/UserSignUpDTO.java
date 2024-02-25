@@ -17,7 +17,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor
-public class UserOutputDTO {
+public class UserSignUpDTO {
 
     private UUID id;
 
@@ -25,9 +25,11 @@ public class UserOutputDTO {
     private String email;
 
     @NotBlank
+    private String password;
+
+    @NotBlank
     private String firstName;
 
     @NotBlank
     private String lastName;
-
 }
