@@ -9,9 +9,11 @@ import com.areg.project.models.dtos.UserSignUpDTO;
 import com.areg.project.models.responses.UserSignUpResponse;
 import com.areg.project.models.entities.UserEntity;
 import com.areg.project.services.implementations.UserService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.InvalidObjectException;
 import java.util.UUID;
 
 @Service
@@ -28,7 +30,12 @@ public class UserManager {
         this.encryptionManager = encryptionManager;
     }
 
-    public UserSignUpResponse signUp(UserSignUpDTO userSignUpDto) {
+    public UserSignUpResponse signUp(UserSignUpDTO userSignUpDto) throws InvalidObjectException {
+
+        if (! isValidUserDTO(userSignUpDto)) {
+            //logger.error(_msg(sessionId, email, "Invalid data provided for the user : " + email));
+            throw new InvalidObjectException("Data cannot be empty");
+        }
 
         final UserEntity userEntity = userConverter.fromSignUpInputToEntity(userSignUpDto);
         final String salt = encryptionManager.generateSalt();
@@ -47,5 +54,11 @@ public class UserManager {
     public UserSignUpResponse findUserById(UUID id) {
         final UserEntity userEntity = userService.findUserById(id);
         return userConverter.fromEntityToSignUpResponse(userEntity);
+    }
+
+
+    private boolean isValidUserDTO(UserSignUpDTO userSignUpDto) {
+        return StringUtils.isNotBlank(userSignUpDto.getEmail()) && StringUtils.isNotBlank(userSignUpDto.getPassword())
+                && StringUtils.isNotBlank(userSignUpDto.getFirstName()) && StringUtils.isNotBlank(userSignUpDto.getLastName());
     }
 }

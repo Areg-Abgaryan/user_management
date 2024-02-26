@@ -9,7 +9,6 @@ import com.areg.project.models.dtos.UserSignUpDTO;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
-import org.apache.commons.lang3.StringUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -42,10 +41,6 @@ public class UserController {
         //logger.info(_msg(Utils.getSessionId(), email, "Request for registering a new user : " + email));
 
         try {
-            if (! isValidUserDTO(userSignUpDto)) {
-                //logger.error(_msg(sessionId, email, "Invalid data provided for the user : " + email));
-                throw new InvalidObjectException("Data cannot be empty");
-            }
             return ResponseEntity.ok(userManager.signUp(userSignUpDto)); //, logger));
         } catch (InvalidObjectException e) {
             //logger.error(_msg(sessionId, email, "Invalid data provided"));
@@ -54,10 +49,5 @@ public class UserController {
             //logger.error(_msg(sessionId, email, "User with email " + email + "already exists in the system"));
             return ResponseEntity.status(HttpStatus.CONFLICT).body("User with such email already exists");
         }
-    }
-
-    private boolean isValidUserDTO(UserSignUpDTO userSignUpDto) {
-        return StringUtils.isNotBlank(userSignUpDto.getEmail()) && StringUtils.isNotBlank(userSignUpDto.getPassword())
-                && StringUtils.isNotBlank(userSignUpDto.getFirstName()) && StringUtils.isNotBlank(userSignUpDto.getLastName());
     }
 }
