@@ -20,11 +20,11 @@ import lombok.Getter;
 import java.util.UUID;
 
 @Entity
-@Table(name = "t_object")
+@Table(name = "object")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "entity_type", discriminatorType = DiscriminatorType.STRING)
 @Getter
-public class ObjectEntity extends BaseEntity {
+public class ObjectEntity extends CreateUpdateEntity {
 
     @Column(name = "external_id")
     protected UUID externalId;

@@ -10,7 +10,11 @@ import java.util.UUID;
 
 public interface IUserService {
 
-    UserEntity createUser(UserEntity userEntity);
+    UserEntity createUnverifiedUser(UserEntity userEntity);
+
+    UserEntity saveVerifiedUser(UserEntity userEntity);
+
+    void updateWithNoOtpData(UserEntity userEntity);
 
     UserEntity findUserById(UUID id);
 

@@ -17,7 +17,7 @@ import java.util.Set;
 
 @Entity
 @Getter
-@Table(name = "t_permission")
+@Table(name = "permission")
 public class PermissionEntity extends BaseEntity {
 
     @Column(name = "name")

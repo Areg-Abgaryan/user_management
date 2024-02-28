@@ -25,6 +25,5 @@ gradle-app.setting
 .idea/jarRepositories.xml
 .idea/misc.xml
 .idea/modules.xml
-.idea/modules/org.example.user_management.main.iml
 gradle/wrapper/gradle-wrapper.jar
 gradle/wrapper/gradle-wrapper.properties

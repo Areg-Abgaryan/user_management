@@ -11,8 +11,8 @@ import java.util.UUID;
 
 @Entity
 @Getter
-@Table(name = "t_object_group")
-public class ObjectGroupEntity extends BaseEntity {
+@Table(name = "object_group")
+public class ObjectGroupEntity extends CreateUpdateEntity {
 
     @Column(name = "external_id")
     private UUID externalId;

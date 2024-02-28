@@ -17,7 +17,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor
-public class UserSignUpResponse {
+public class UserSignupResponse {
 
     @NotBlank private UUID id;
 
@@ -26,4 +26,6 @@ public class UserSignUpResponse {
     @NotBlank private String firstName;
 
     @NotBlank private String lastName;
+
+    @NotBlank private String otpVerificationInstructions;
 }

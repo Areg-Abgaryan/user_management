@@ -5,5 +5,5 @@
 package com.areg.project.models;
 
 public enum UserStatus {
-    ACTIVE, NOT_ACTIVE, DELETED
+    UNVERIFIED, ACTIVE, DELETED
 }

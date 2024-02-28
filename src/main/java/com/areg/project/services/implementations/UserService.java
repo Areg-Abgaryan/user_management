@@ -14,8 +14,6 @@ import org.springframework.stereotype.Service;
 
 import jakarta.persistence.NoResultException;
 
-import java.time.LocalDateTime;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -30,12 +28,25 @@ public class UserService implements IUserService {
 
 
     @Override
-    public UserEntity createUser(UserEntity userEntity) {
+    public UserEntity createUnverifiedUser(UserEntity userEntity) {
+        userEntity.setStatus(UserStatus.UNVERIFIED);
         userEntity.setExternalId(UUID.randomUUID());
-        userEntity.setStatus(UserStatus.ACTIVE);
         userEntity.setCreated(Utils.getCurrentDateAndTime());
         userEntity.setUpdated(Utils.getCurrentDateAndTime());
         return userRepository.save(userEntity);
+    }
+
+    @Override
+    public UserEntity saveVerifiedUser(UserEntity userEntity) {
+        userEntity.setStatus(UserStatus.ACTIVE);
+        return userRepository.saveAndFlush(userEntity);
+    }
+
+    @Override
+    public void updateWithNoOtpData(UserEntity userEntity) {
+        userEntity.setOtp(0);
+        userEntity.setOtpCreationTime(0);
+        userRepository.save(userEntity);
     }
 
     @Override
@@ -52,15 +63,5 @@ public class UserService implements IUserService {
                 .orElseThrow(
                         () -> new NoResultException("User with email '" + email + "' not found")
                 );
-    }
-
-
-    public void updateLastLoginTime(String username, LocalDateTime lastLoginDate) {
-        final Optional<UserEntity> userEntity = userRepository.findUserEntityByEmail(username);
-        if (userEntity.isEmpty()) {
-            return;
-        }
-        userEntity.get().setUpdated(lastLoginDate);
-        userRepository.save(userEntity.get());
     }
 }

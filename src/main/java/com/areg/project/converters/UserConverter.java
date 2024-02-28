@@ -5,35 +5,35 @@
 package com.areg.project.converters;
 
 import com.areg.project.models.dtos.UserSignUpDTO;
-import com.areg.project.models.responses.UserSignUpResponse;
+import com.areg.project.models.responses.UserSignupResponse;
 import com.areg.project.models.entities.UserEntity;
 import org.springframework.stereotype.Component;
 
 @Component
 public class UserConverter {
 
-    public UserSignUpResponse fromEntityToSignUpResponse(UserEntity userEntity) {
+    public UserSignupResponse fromEntityToSignUpResponse(UserEntity userEntity) {
         if (userEntity == null) {
             return null;
         }
 
-        final var userDto = new UserSignUpResponse();
-        userDto.setId(userEntity.getExternalId());
-        userDto.setEmail(userEntity.getEmail());
-        userDto.setFirstName(userEntity.getFirstName());
-        userDto.setLastName(userEntity.getLastName());
-        return userDto;
+        final var signupResponse = new UserSignupResponse();
+        signupResponse.setId(userEntity.getExternalId());
+        signupResponse.setEmail(userEntity.getEmail());
+        signupResponse.setFirstName(userEntity.getFirstName());
+        signupResponse.setLastName(userEntity.getLastName());
+        return signupResponse;
     }
 
-    public UserEntity fromSignUpInputToEntity(UserSignUpDTO userSignUpDto) {
-        if (userSignUpDto == null) {
+    public UserEntity fromSignUpDtoToEntity(UserSignUpDTO signUpDto) {
+        if (signUpDto == null) {
             return null;
         }
 
         final var userEntity = new UserEntity();
-        userEntity.setEmail(userSignUpDto.getEmail());
-        userEntity.setFirstName(userSignUpDto.getFirstName());
-        userEntity.setLastName(userSignUpDto.getLastName());
+        userEntity.setEmail(signUpDto.getEmail());
+        userEntity.setFirstName(signUpDto.getFirstName());
+        userEntity.setLastName(signUpDto.getLastName());
         return userEntity;
     }
 }

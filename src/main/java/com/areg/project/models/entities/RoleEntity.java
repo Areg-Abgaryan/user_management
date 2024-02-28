@@ -18,14 +18,14 @@ import java.util.Set;
 @Entity
 @Getter
 @Setter
-@Table(name = "t_role")
+@Table(name = "role")
 public class RoleEntity extends BaseEntity {
 
     @Column(name = "name")
     private String name;
 
     @ManyToMany
-    @JoinTable(name = "t_role_permission",
+    @JoinTable(name = "role_permission",
             joinColumns = @JoinColumn(name = "role_id"),
             inverseJoinColumns = @JoinColumn(name = "permission_id"))
     private Set<PermissionEntity> permissions;

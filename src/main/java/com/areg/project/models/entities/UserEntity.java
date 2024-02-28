@@ -18,13 +18,12 @@ import jakarta.persistence.Column;
 
 import lombok.Getter;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
 @Getter @Setter
 @Table(name = "user", schema = "public")
-public class UserEntity extends BaseEntity {
+public class UserEntity extends CreateUpdateEntity {
 
     @Column(name = "external_id", unique = true)
     private UUID externalId;
@@ -47,6 +46,12 @@ public class UserEntity extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
     private UserStatus status;
+
+    @Column(name = "otp")
+    private int otp;
+
+    @Column(name = "otpCreationTime")
+    private long otpCreationTime;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_group_id")

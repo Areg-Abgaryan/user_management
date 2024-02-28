@@ -4,7 +4,7 @@ plugins {
     id ('java')
 }
 
-group 'org.example'
+group 'com.areg.project'
 version '1.0-SNAPSHOT'
 
 repositories {
@@ -15,9 +15,12 @@ dependencies {
 
     //  Spring Boot
     implementation ('org.springframework.boot:spring-boot-starter-web:3.2.3')
-
     //  Spring Data JPA
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa:3.2.3'
+    implementation ('org.springframework.boot:spring-boot-starter-data-jpa:3.2.3')
+    //  Spring Mail
+    implementation ('org.springframework.boot:spring-boot-starter-mail:3.2.3')
+    //  Spring Security
+    implementation ('org.springframework.security:spring-security-core:6.2.2')
 
     //  Lombok
     annotationProcessor ('org.projectlombok:lombok:1.18.30')
@@ -31,9 +34,16 @@ dependencies {
 
     //  Apache Shiro
     implementation ('org.apache.shiro:shiro-core:2.0.0-alpha-4')
+    implementation ('org.apache.shiro:shiro-spring:2.0.0-alpha-4')
 
     //  Swagger
     implementation ('org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0')
+
+    //  JUnit 5
+    testImplementation ('org.junit.jupiter:junit-jupiter-api:5.10.2')
+
+    //  JWT Token
+    implementation ('io.jsonwebtoken:jjwt-api:0.12.5')
 
     //  Other
     implementation ('org.apache.commons:commons-lang3:3.14.0')
