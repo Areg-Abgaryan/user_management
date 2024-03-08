@@ -66,7 +66,7 @@ public class UserService implements IUserService {
         if (userEntity.isEmpty()) {
             return;
         }
-        userEntity.get().setUpdated(lastLoginDate);
+        userEntity.get().setLastLoginTime(lastLoginDate);
         userRepository.saveAndFlush(userEntity.get());
     }
 }

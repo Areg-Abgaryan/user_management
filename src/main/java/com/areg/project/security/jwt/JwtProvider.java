@@ -4,13 +4,14 @@
 
 package com.areg.project.security.jwt;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.AuthorizationException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
+import javax.crypto.SecretKey;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Date;
 import java.util.List;
@@ -40,7 +44,7 @@ public class JwtProvider {
         this.validTimeMillis = validTimeMillis;
         this.jwtUserDetailsService = jwtUserDetailsService;
     }
-    //  FIXME !! Change all these deprecated api-s
+
 
     // Generate a new JWT
     public String createJwtToken(String email, Set<String> setOfPermissions) {
@@ -48,9 +52,17 @@ public class JwtProvider {
                 .subject(email)
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + validTimeMillis))
-                .signWith(SignatureAlgorithm.HS256, secret)
+                .signWith(getSigningKey())
                 .claim("permissions", setOfPermissions)
                 .compact();
+    }
+
+    //  Is used from controllers for checking whether the has permission for operation or not
+    public void checkPermissions(String jwtToken, String domain, String operation) {
+        final List<String> permissionsFromToken = getPermissionsFromToken(jwtToken);
+        if (permissionsFromToken.stream().noneMatch(perm -> perm.contains(domain) && !perm.contains(operation))) {
+            throw new AuthorizationException("You don't have permissions for this operation");
+        }
     }
 
     // Validate the JWT token
@@ -59,7 +71,7 @@ public class JwtProvider {
             if (StringUtils.isBlank(token)) {
                 throw new JwtException("Token is invalid !");
             }
-            final Jws<Claims> claims = Jwts.parser().setSigningKey(secret).build().parseSignedClaims(token);
+            final Jws<Claims> claims = Jwts.parser().decryptWith(getSigningKey()).build().parseSignedClaims(token);
             return claims.getPayload().getExpiration().after(new Date());
         } catch (JwtException | IllegalArgumentException e) {
             return false;
@@ -76,27 +88,32 @@ public class JwtProvider {
         return bearerToken != null && bearerToken.startsWith("Bearer ") ? bearerToken.substring(7) : null;
     }
 
-    public void checkPermissions(String jwtToken, String domain, String operation) {
-        final List<String> permissionsFromToken = getPermissionsFromToken(jwtToken);
-        if (permissionsFromToken.stream().noneMatch(perm -> perm.contains(domain) && !perm.contains(operation))) {
-            throw new AuthorizationException("You don't have permissions for this operation");
-        }
-    }
-
     private List<String> getPermissionsFromToken(String token) {
-        final List<String> perms = (List<String>) Jwts.parser()
-                .setSigningKey(secret).build()
-                .parseSignedClaims(token)
-                .getPayload().get("permissions");
-        if (CollectionUtils.isEmpty(perms)) {
-            throw new AuthorizationException("You don't have any permission for operations");
+        try {
+            final String permissionsJson = Jwts.parser()
+                    .decryptWith(getSigningKey()).build()
+                    .parseSignedClaims(token)
+                    .getPayload().get("permissions", String.class);
+
+            if (StringUtils.isBlank(permissionsJson)) {
+                throw new AuthorizationException("You don't have any permission for operations");
+            }
+
+            final var objectMapper = new ObjectMapper();
+            return objectMapper.readValue(permissionsJson, new TypeReference<>() {});
+        } catch (IOException e) {
+            throw new AuthorizationException("Error while parsing permissions from the token", e);
         }
-        return perms;
     }
 
     private String getEmailFromToken(String token) {
         return Jwts.parser()
-                .setSigningKey(secret).build()
+                .decryptWith(getSigningKey()).build()
                 .parseSignedClaims(token).getPayload().getSubject();
+    }
+
+    private SecretKey getSigningKey() {
+        final byte[] keyBytes = secret.getBytes(StandardCharsets.UTF_8);
+        return Keys.hmacShaKeyFor(keyBytes);
     }
 }
