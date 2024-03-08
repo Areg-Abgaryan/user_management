@@ -32,6 +32,11 @@ dependencies {
     //  Jakarta Validation
     implementation ('jakarta.validation:jakarta.validation-api:3.1.0-M1')
 
+    //  JWT Token
+    implementation ('io.jsonwebtoken:jjwt-api:0.12.5')
+    implementation ('io.jsonwebtoken:jjwt-impl:0.12.5')
+    implementation ('io.jsonwebtoken:jjwt-jackson:0.12.5')
+
     //  Apache Shiro
     implementation ('org.apache.shiro:shiro-core:2.0.0-alpha-4:jakarta')
     //  Some of Shiro's Jakarta-classified dependencies depend on the non-Jakarta variant of modules so
@@ -49,9 +54,6 @@ dependencies {
 
     //  JUnit 5
     testImplementation ('org.junit.jupiter:junit-jupiter-api:5.10.2')
-
-    //  JWT Token
-    implementation ('io.jsonwebtoken:jjwt-api:0.12.5')
 
     //  Other
     implementation ('org.apache.commons:commons-lang3:3.14.0')

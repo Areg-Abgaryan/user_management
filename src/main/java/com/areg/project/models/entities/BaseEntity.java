@@ -18,7 +18,6 @@ import jakarta.persistence.MappedSuperclass;
 
 @Getter
 @Setter
-@NoArgsConstructor
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
 abstract class BaseEntity {

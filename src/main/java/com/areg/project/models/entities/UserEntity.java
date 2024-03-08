@@ -18,6 +18,7 @@ import jakarta.persistence.Column;
 
 import lombok.Getter;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -46,6 +47,10 @@ public class UserEntity extends CreateUpdateEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
     private UserStatus status;
+
+    @CreatedDate
+    @Column(name = "last_login")
+    private LocalDateTime lastLoginTime;
 
     @Column(name = "otp")
     private int otp;

@@ -4,8 +4,8 @@
 
 package com.areg.project.converters;
 
-import com.areg.project.models.dtos.UserSignUpDTO;
-import com.areg.project.models.responses.UserSignupResponse;
+import com.areg.project.models.dtos.requests.UserSignUpDTO;
+import com.areg.project.models.dtos.responses.UserSignupResponse;
 import com.areg.project.models.entities.UserEntity;
 import org.springframework.stereotype.Component;
 

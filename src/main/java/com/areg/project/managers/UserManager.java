@@ -8,9 +8,9 @@ import com.areg.project.controllers.EndpointsConstants;
 import com.areg.project.converters.UserConverter;
 import com.areg.project.exceptions.OtpTimeoutException;
 import com.areg.project.exceptions.WrongOtpException;
-import com.areg.project.models.dtos.UserSignUpDTO;
-import com.areg.project.models.dtos.UserVerifyEmailDTO;
-import com.areg.project.models.responses.UserSignupResponse;
+import com.areg.project.models.dtos.requests.UserSignUpDTO;
+import com.areg.project.models.dtos.requests.UserVerifyEmailDTO;
+import com.areg.project.models.dtos.responses.UserSignupResponse;
 import com.areg.project.models.entities.UserEntity;
 import com.areg.project.services.implementations.UserService;
 import com.areg.project.utils.Utils;
@@ -20,6 +20,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.InvalidObjectException;
+import java.time.LocalDateTime;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -60,7 +62,7 @@ public class UserManager {
         final long otpCreationTime = Utils.getEpochSecondsNow();
         entity.setOtp(otp);
         entity.setOtpCreationTime(otpCreationTime);
-
+        //  FIXME !! Validate when the user with that email already exists
         //  FIXME !! Check whether i can save both abgaryan.areg@gmail.com && abgaryan.areg@broadcom.com
         //  Save unverified user
         final UserEntity savedEntity = userService.createUnverifiedUser(entity);
@@ -125,6 +127,15 @@ public class UserManager {
         return userConverter.fromEntityToSignUpResponse(userEntity);
     }
 
+    public void updateLastLoginTime(String email, LocalDateTime loginDate) {
+        userService.updateLastLoginTime(email, loginDate);
+    }
+
+    public Set<String> createUserPermissionsWildcards(UUID userId) {
+        //  FIXME !!
+        return null;
+    }
+
 
     //  Check whether the user is valid or not
     private static boolean isValidUser(UserSignUpDTO userSignUpDto) {
@@ -140,6 +151,4 @@ public class UserManager {
         return "A one time password is sent to your " + email
                 + " address. Please, send it via this path " + EndpointsConstants.USER_SIGNUP_VERIFY_EMAIL;
     }
-
-    //  Create a message for the user to indicate that
 }

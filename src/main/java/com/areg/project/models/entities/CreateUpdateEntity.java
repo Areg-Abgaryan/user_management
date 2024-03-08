@@ -18,7 +18,6 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
-@NoArgsConstructor
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
 abstract class CreateUpdateEntity extends BaseEntity {

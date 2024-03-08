@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 
 import jakarta.persistence.NoResultException;
 
+import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -63,5 +65,15 @@ public class UserService implements IUserService {
                 .orElseThrow(
                         () -> new NoResultException("User with email '" + email + "' not found")
                 );
+    }
+
+    @Override
+    public void updateLastLoginTime(String email, LocalDateTime lastLoginDate) {
+        final Optional<UserEntity> userEntity = userRepository.findUserEntityByEmail(email);
+        if (userEntity.isEmpty()) {
+            return;
+        }
+        userEntity.get().setUpdated(lastLoginDate);
+        userRepository.save(userEntity.get());
     }
 }
