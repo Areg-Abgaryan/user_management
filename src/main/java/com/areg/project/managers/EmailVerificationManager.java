@@ -59,6 +59,6 @@ public class EmailVerificationManager {
     }
 
     private static String createOtpMessageText(long otp) {
-        return "Your OTP is " + otp + ". It is expiring in 1 minute";
+        return "Your OTP is " + otp + ". It is expiring in 2 minutes";
     }
 }

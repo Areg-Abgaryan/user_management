@@ -110,8 +110,8 @@ public class UserManager {
             throw new AuthenticationException();
         } else {
 
-            //  Check otp creation time. Timeout if 60 seconds passed
-            if (entity.getOtpCreationTime() + 60 < now) {
+            //  Check otp creation time. Timeout if 120 seconds passed
+            if (entity.getOtpCreationTime() + 120 < now) {
                 userService.updateWithNoOtpData(entity);
                 throw new OtpTimeoutException();
             }
@@ -189,7 +189,7 @@ public class UserManager {
         permissionsString = result.stream().map(permission -> permission.getName() + ",").collect(Collectors.joining());
         objectsString = objects.stream().map(objectEntity -> objectEntity.getExternalId().toString() + ",").collect(Collectors.joining());
 
-        return domain.getName() + ":" + StringUtils.chop(permissionsString) + ":" + StringUtils.chop(objectsString);
+        return domain.getCode() + ":" + StringUtils.chop(permissionsString) + ":" + StringUtils.chop(objectsString);
     }
 
     //  Check whether the user is valid or not

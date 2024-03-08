@@ -55,10 +55,11 @@ public class UserEntity extends CreateUpdateEntity {
     @Column(name = "otp")
     private int otp;
 
-    @Column(name = "otpCreationTime")
+    @Column(name = "otp_creation_time")
     private long otpCreationTime;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    //  FIXME !! Change to Lazy
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_group_id")
     private UserGroupEntity userGroup;
 }

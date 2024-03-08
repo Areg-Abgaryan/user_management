@@ -31,7 +31,7 @@ public class DomainEntity extends BaseEntity {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        DomainEntity that = (DomainEntity) o;
+        final var that = (DomainEntity) o;
         return name.equals(that.name) && code.equals(that.code);
     }
 

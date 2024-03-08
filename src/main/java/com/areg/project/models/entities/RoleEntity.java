@@ -16,8 +16,7 @@ import lombok.Setter;
 import java.util.Set;
 
 @Entity
-@Getter
-@Setter
+@Getter @Setter
 @Table(name = "role")
 public class RoleEntity extends BaseEntity {
 

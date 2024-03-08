@@ -16,8 +16,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
 
-@Getter
-@Setter
+@Getter @Setter
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
 abstract class BaseEntity {

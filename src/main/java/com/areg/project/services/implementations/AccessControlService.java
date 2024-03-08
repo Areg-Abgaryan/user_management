@@ -23,9 +23,6 @@ public class AccessControlService implements IAccessControlService {
 
     @Override
     public AccessControlEntity getByUserGroupId(Long userGroupId) {
-        return accessControlRepository.findByUserGroupId(userGroupId)
-                .orElseThrow(
-                        () -> new AccessControlNotFoundException(userGroupId)
-                );
+        return accessControlRepository.findByUserGroupId(userGroupId).orElseThrow(() -> new AccessControlNotFoundException(userGroupId));
     }
 }

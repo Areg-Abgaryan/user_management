@@ -52,27 +52,21 @@ public class UserService implements IUserService {
 
     @Override
     public UserEntity findUserById(UUID id) throws UserNotFoundException {
-        return userRepository.findUserEntityByExternalId(id)
-                .orElseThrow(
-                        () -> new UserNotFoundException(id)
-                );
+        return userRepository.findByExternalId(id).orElseThrow(() -> new UserNotFoundException(id));
     }
 
     @Override
     public UserEntity findUserByEmail(String email) throws UserNotFoundException {
-        return userRepository.findUserEntityByEmail(email)
-                .orElseThrow(
-                        () -> new UserNotFoundException(email)
-                );
+        return userRepository.findByEmail(email).orElseThrow(() -> new UserNotFoundException(email));
     }
 
     @Override
     public void updateLastLoginTime(String email, LocalDateTime lastLoginDate) {
-        final Optional<UserEntity> userEntity = userRepository.findUserEntityByEmail(email);
+        final Optional<UserEntity> userEntity = userRepository.findByEmail(email);
         if (userEntity.isEmpty()) {
             return;
         }
         userEntity.get().setUpdated(lastLoginDate);
-        userRepository.save(userEntity.get());
+        userRepository.saveAndFlush(userEntity.get());
     }
 }

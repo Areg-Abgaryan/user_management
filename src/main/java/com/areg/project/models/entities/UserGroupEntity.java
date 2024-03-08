@@ -18,7 +18,7 @@ import java.util.UUID;
 @Entity
 @Getter @Setter
 @Table(name = "user_group", schema = "public")
-public class UserGroupEntity extends CreateUpdateEntity {
+public class UserGroupEntity extends BaseEntity {
 
     @Column(name = "external_id", unique = true)
     private UUID externalId;

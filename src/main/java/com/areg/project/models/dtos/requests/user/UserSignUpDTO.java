@@ -23,9 +23,9 @@ public class UserSignUpDTO {
     @JsonProperty("password")
     @NotBlank private String password;
 
-    @JsonProperty("firstName")
+    @JsonProperty("first_name")
     @NotBlank private String firstName;
 
-    @JsonProperty("lastName")
+    @JsonProperty("last_name")
     @NotBlank private String lastName;
 }

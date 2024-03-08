@@ -27,16 +27,16 @@ import java.util.UUID;
 public class ObjectEntity extends CreateUpdateEntity {
 
     @Column(name = "external_id")
-    protected UUID externalId;
+    private UUID externalId;
 
     @Column(name = "name", unique = true)
-    protected String name;
+    private String name;
 
-    @OneToOne
-    @JoinColumn(name = "domain_id", referencedColumnName = "id")
-    protected DomainEntity domain;
+    @ManyToOne
+    @JoinColumn(name = "domain_id")
+    private DomainEntity domain;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "object_group_id")
-    protected ObjectGroupEntity objectGroup;
+    private ObjectGroupEntity objectGroup;
 }

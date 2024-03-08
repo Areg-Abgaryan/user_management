@@ -98,8 +98,9 @@ public class UserController {
 
             final var token = new UsernamePasswordToken(email, password);
             final UserSignupResponse userResponse = userManager.findUserByEmail(email);
-            final Subject currentUser = SecurityUtils.getSubject();
-            currentUser.login(token);
+
+            //  Login and update last login time
+            SecurityUtils.getSubject().login(token);
             userManager.updateLastLoginTime(email, Utils.getCurrentDateAndTime());
 
             // Generate JWT token with user permissions

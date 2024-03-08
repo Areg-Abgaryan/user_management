@@ -44,7 +44,7 @@ public class ShiroConfig {
     public ShiroFilterFactoryBean shiroFilterFactoryBean(SecurityManager securityManager, ShiroFilterChainDefinition chainDefinition) {
         final var shiroFilterFactoryBean = new ShiroFilterFactoryBean();
         shiroFilterFactoryBean.setSecurityManager(securityManager);
-        shiroFilterFactoryBean.setLoginUrl(EndpointsConstants.LOGIN);   //  FIXME !! Check this path
+        shiroFilterFactoryBean.setLoginUrl(EndpointsConstants.LOGIN);
         shiroFilterFactoryBean.setSuccessUrl("/");
         shiroFilterFactoryBean.setUnauthorizedUrl("/403");
         shiroFilterFactoryBean.setFilterChainDefinitionMap(chainDefinition.getFilterChainMap());
