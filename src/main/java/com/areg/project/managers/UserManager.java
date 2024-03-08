@@ -8,10 +8,17 @@ import com.areg.project.controllers.EndpointsConstants;
 import com.areg.project.converters.UserConverter;
 import com.areg.project.exceptions.OtpTimeoutException;
 import com.areg.project.exceptions.WrongOtpException;
-import com.areg.project.models.dtos.requests.UserSignUpDTO;
-import com.areg.project.models.dtos.requests.UserVerifyEmailDTO;
-import com.areg.project.models.dtos.responses.UserSignupResponse;
+import com.areg.project.models.dtos.requests.user.UserSignUpDTO;
+import com.areg.project.models.dtos.requests.user.UserVerifyEmailDTO;
+import com.areg.project.models.dtos.responses.user.UserSignupResponse;
+import com.areg.project.models.entities.AccessControlEntity;
+import com.areg.project.models.entities.DomainEntity;
+import com.areg.project.models.entities.ObjectEntity;
+import com.areg.project.models.entities.ObjectGroupEntity;
+import com.areg.project.models.entities.PermissionEntity;
 import com.areg.project.models.entities.UserEntity;
+import com.areg.project.models.entities.UserGroupEntity;
+import com.areg.project.services.implementations.AccessControlService;
 import com.areg.project.services.implementations.UserService;
 import com.areg.project.utils.Utils;
 import org.apache.commons.lang3.StringUtils;
@@ -21,21 +28,28 @@ import org.springframework.stereotype.Service;
 
 import java.io.InvalidObjectException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class UserManager {
 
     private final UserService userService;
+    private final AccessControlService accessControlService;
     private final UserConverter userConverter;
     private final EncryptionManager encryptionManager;
     private final EmailVerificationManager emailVerificationManager;
 
     @Autowired
-    public UserManager(UserService userService, UserConverter userConverter,
+    public UserManager(UserService userService, AccessControlService accessControlService, UserConverter userConverter,
                        EncryptionManager encryptionManager, EmailVerificationManager emailVerificationManager) {
         this.userService = userService;
+        this.accessControlService = accessControlService;
         this.userConverter = userConverter;
         this.encryptionManager = encryptionManager;
         this.emailVerificationManager = emailVerificationManager;
@@ -132,10 +146,51 @@ public class UserManager {
     }
 
     public Set<String> createUserPermissionsWildcards(UUID userId) {
-        //  FIXME !!
-        return null;
+
+        final UserEntity userById = userService.findUserById(userId);
+        final UserGroupEntity userGroup = userById.getUserGroup();
+        if (userGroup == null) {
+            return Collections.emptySet();
+        }
+
+        final AccessControlEntity accessControl = accessControlService.getByUserGroupId(userGroup.getId());
+        final Set<ObjectGroupEntity> objectGroupSet = accessControl.getObjectGroups();
+        final Set<String> wildcards = new HashSet<>();
+
+        for (var objectGroup : objectGroupSet) {
+            if (! objectGroup.getObjects().isEmpty()) {
+                final DomainEntity currentDomain = objectGroup.getObjects().stream()
+                        .iterator()
+                        .next()
+                        .getDomain();
+                wildcards.add(createUserPermissionsWildcard(
+                        currentDomain, objectGroup.getObjects(), accessControl.getRole().getPermissions()));
+            }
+        }
+        return wildcards;
     }
 
+
+    private String createUserPermissionsWildcard(DomainEntity domain, Set<ObjectEntity> objects,
+                                                 Set<PermissionEntity> permissions) {
+        final String permissionsString;
+        final String objectsString;
+
+        List<PermissionEntity> result = new ArrayList<>();
+        if (permissions != null && !permissions.isEmpty()) {
+            result = permissions.stream()
+                    .filter(perm -> perm.getDomain().equals(domain) && domain.getPermissions().contains(perm)).toList();
+        }
+
+        if (result.isEmpty()) {
+            return "";
+        }
+
+        permissionsString = result.stream().map(permission -> permission.getName() + ",").collect(Collectors.joining());
+        objectsString = objects.stream().map(objectEntity -> objectEntity.getExternalId().toString() + ",").collect(Collectors.joining());
+
+        return domain.getName() + ":" + StringUtils.chop(permissionsString) + ":" + StringUtils.chop(objectsString);
+    }
 
     //  Check whether the user is valid or not
     private static boolean isValidUser(UserSignUpDTO userSignUpDto) {

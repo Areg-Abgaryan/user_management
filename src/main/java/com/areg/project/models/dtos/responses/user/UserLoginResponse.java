@@ -2,7 +2,7 @@
  * Copyright (c) 2024 Areg Abgaryan
  */
 
-package com.areg.project.models.dtos.responses;
+package com.areg.project.models.dtos.responses.user;
 
 import com.areg.project.security.jwt.JwtToken;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;

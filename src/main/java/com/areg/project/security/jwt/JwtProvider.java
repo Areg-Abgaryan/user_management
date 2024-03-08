@@ -40,16 +40,16 @@ public class JwtProvider {
         this.validTimeMillis = validTimeMillis;
         this.jwtUserDetailsService = jwtUserDetailsService;
     }
-
+    //  FIXME !! Change all these deprecated api-s
 
     // Generate a new JWT
     public String createJwtToken(String email, Set<String> setOfPermissions) {
-        final Claims claims = (Claims) Jwts.claims().subject(email);
-        claims.put("perms", setOfPermissions);
-
-        return Jwts.builder().claims(claims).issuedAt(new Date())
+        return Jwts.builder()
+                .subject(email)
+                .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + validTimeMillis))
                 .signWith(SignatureAlgorithm.HS256, secret)
+                .claim("permissions", setOfPermissions)
                 .compact();
     }
 
@@ -87,7 +87,7 @@ public class JwtProvider {
         final List<String> perms = (List<String>) Jwts.parser()
                 .setSigningKey(secret).build()
                 .parseSignedClaims(token)
-                .getPayload().get("perms");
+                .getPayload().get("permissions");
         if (CollectionUtils.isEmpty(perms)) {
             throw new AuthorizationException("You don't have any permission for operations");
         }

@@ -4,6 +4,7 @@
 
 package com.areg.project.services.implementations;
 
+import com.areg.project.exceptions.UserNotFoundException;
 import com.areg.project.models.UserStatus;
 import com.areg.project.models.entities.UserEntity;
 import com.areg.project.repositories.IUserRepository;
@@ -11,8 +12,6 @@ import com.areg.project.services.interfaces.IUserService;
 import com.areg.project.utils.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import jakarta.persistence.NoResultException;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -52,18 +51,18 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public UserEntity findUserById(UUID id) throws NoResultException {
+    public UserEntity findUserById(UUID id) throws UserNotFoundException {
         return userRepository.findUserEntityByExternalId(id)
                 .orElseThrow(
-                        () -> new NoResultException(id.toString())
+                        () -> new UserNotFoundException(id)
                 );
     }
 
     @Override
-    public UserEntity findUserByEmail(String email) {
+    public UserEntity findUserByEmail(String email) throws UserNotFoundException {
         return userRepository.findUserEntityByEmail(email)
                 .orElseThrow(
-                        () -> new NoResultException("User with email '" + email + "' not found")
+                        () -> new UserNotFoundException(email)
                 );
     }
 

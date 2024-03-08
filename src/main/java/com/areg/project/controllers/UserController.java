@@ -5,11 +5,11 @@
 package com.areg.project.controllers;
 
 import com.areg.project.managers.UserManager;
-import com.areg.project.models.dtos.responses.UserLoginResponse;
-import com.areg.project.models.dtos.responses.UserSignupResponse;
-import com.areg.project.models.dtos.requests.UserLoginDTO;
-import com.areg.project.models.dtos.requests.UserSignUpDTO;
-import com.areg.project.models.dtos.requests.UserVerifyEmailDTO;
+import com.areg.project.models.dtos.responses.user.UserLoginResponse;
+import com.areg.project.models.dtos.responses.user.UserSignupResponse;
+import com.areg.project.models.dtos.requests.user.UserLoginDTO;
+import com.areg.project.models.dtos.requests.user.UserSignUpDTO;
+import com.areg.project.models.dtos.requests.user.UserVerifyEmailDTO;
 import com.areg.project.security.jwt.JwtProvider;
 import com.areg.project.security.jwt.JwtToken;
 import com.areg.project.utils.Utils;

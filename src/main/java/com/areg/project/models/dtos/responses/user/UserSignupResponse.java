@@ -2,7 +2,7 @@
  * Copyright (c) 2024 Areg Abgaryan
  */
 
-package com.areg.project.models.dtos.responses;
+package com.areg.project.models.dtos.responses.user;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.constraints.Email;
