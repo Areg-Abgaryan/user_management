@@ -4,6 +4,9 @@
 
 package com.areg.project.managers;
 
+import com.areg.project.controllers.EndpointsConstants;
+import jakarta.mail.internet.AddressException;
+import jakarta.mail.internet.InternetAddress;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,17 +42,25 @@ public class EmailVerificationManager {
     }
 
     public void sendEmail(String emailAddress, long otp) {
-
         if (StringUtils.isBlank(emailAddress)) {
             return;
         }
-
-        final SimpleMailMessage message = createMailMessage(emailAddress, otp);
-        mailSender.send(message);
+        mailSender.send(createMailMessage(emailAddress, otp));
     }
 
-    private SimpleMailMessage createMailMessage(String emailAddress, long otp) {
+    public void isValidEmailAddress(String email) throws AddressException {
+        final var internetAddress = new InternetAddress(email);
+        internetAddress.validate();
+    }
 
+    //  Create a message for the user with OTP instructions for verifying email during sign up
+    public static String createOTPInstructionsMessage(String email) {
+        return "A one time password is sent to your " + email
+                + " address. Please, send it via this path " + EndpointsConstants.USER_SIGNUP_VERIFY_EMAIL;
+    }
+
+
+    private SimpleMailMessage createMailMessage(String emailAddress, long otp) {
         final var message = new SimpleMailMessage();
         message.setFrom(mailServer);
         message.setTo(emailAddress);

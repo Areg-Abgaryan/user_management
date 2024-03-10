@@ -4,80 +4,70 @@
 
 package com.areg.project.managers;
 
-import com.areg.project.controllers.EndpointsConstants;
+import com.areg.project.builders.UserPermissionsWildcardBuilder;
 import com.areg.project.converters.UserConverter;
+import com.areg.project.exceptions.BlankInputDataException;
+import com.areg.project.exceptions.ForbiddenOperationException;
 import com.areg.project.exceptions.OtpTimeoutException;
 import com.areg.project.exceptions.WrongOtpException;
+import com.areg.project.models.UserStatus;
+import com.areg.project.models.dtos.requests.user.UserLoginDTO;
 import com.areg.project.models.dtos.requests.user.UserSignUpDTO;
 import com.areg.project.models.dtos.requests.user.UserVerifyEmailDTO;
+import com.areg.project.models.dtos.responses.user.UserLoginResponse;
 import com.areg.project.models.dtos.responses.user.UserSignupResponse;
-import com.areg.project.models.entities.AccessControlEntity;
-import com.areg.project.models.entities.DomainEntity;
-import com.areg.project.models.entities.ObjectEntity;
-import com.areg.project.models.entities.ObjectGroupEntity;
-import com.areg.project.models.entities.PermissionEntity;
 import com.areg.project.models.entities.UserEntity;
-import com.areg.project.models.entities.UserGroupEntity;
-import com.areg.project.services.implementations.AccessControlService;
+import com.areg.project.security.jwt.JwtProvider;
+import com.areg.project.security.jwt.JwtToken;
 import com.areg.project.services.implementations.UserService;
 import com.areg.project.utils.Utils;
+import com.areg.project.validators.UserInputValidator;
+import jakarta.mail.internet.AddressException;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
+import org.apache.shiro.authc.UsernamePasswordToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.InvalidObjectException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 public class UserManager {
 
+    private static String exceptionMessage;
+
     private final UserService userService;
-    private final AccessControlService accessControlService;
+    private final UserInputValidator userInputValidator;
     private final UserConverter userConverter;
     private final EncryptionManager encryptionManager;
     private final EmailVerificationManager emailVerificationManager;
+    private final UserPermissionsWildcardBuilder userPermissionsWildcardBuilder;
+    private final JwtProvider jwtProvider;
 
     @Autowired
-    public UserManager(UserService userService, AccessControlService accessControlService, UserConverter userConverter,
-                       EncryptionManager encryptionManager, EmailVerificationManager emailVerificationManager) {
+    public UserManager(UserService userService, UserInputValidator userInputValidator, UserConverter userConverter,
+                       EncryptionManager encryptionManager, EmailVerificationManager emailVerificationManager,
+                       UserPermissionsWildcardBuilder userPermissionsWildcardBuilder, JwtProvider jwtProvider) {
         this.userService = userService;
-        this.accessControlService = accessControlService;
+        this.userInputValidator = userInputValidator;
         this.userConverter = userConverter;
         this.encryptionManager = encryptionManager;
         this.emailVerificationManager = emailVerificationManager;
+        this.userPermissionsWildcardBuilder = userPermissionsWildcardBuilder;
+        this.jwtProvider = jwtProvider;
     }
 
-    public UserSignupResponse createUnverifiedUser(UserSignUpDTO signUpDto) throws InvalidObjectException {
-
-        if (! isValidUser(signUpDto)) {
-            throw new InvalidObjectException("Data cannot be empty");
-        }
+    public UserSignupResponse createUnverifiedUser(UserSignUpDTO signUpDto) throws AddressException {
+        //  Validate user input
+        userInputValidator.validateUserInput(signUpDto);
 
         final UserEntity entity = userConverter.fromSignUpDtoToEntity(signUpDto);
+        fillSignUpEntityFields(entity, signUpDto.getPassword());
 
-        //  Set salt
-        final String salt = encryptionManager.generateSalt();
-        entity.setSalt(salt);
-
-        //  Set encrypted password
-        final String encryptedPassword = encryptionManager.encrypt(signUpDto.getPassword(), salt);
-        entity.setPassword(encryptedPassword);
-
-        //  Create one time password and set to the user entity
-        final int otp = emailVerificationManager.generateOneTimePassword();
-        final long otpCreationTime = Utils.getEpochSecondsNow();
-        entity.setOtp(otp);
-        entity.setOtpCreationTime(otpCreationTime);
         //  FIXME !! Validate when the user with that email already exists
-        //  FIXME !! Check whether i can save both abgaryan.areg@gmail.com && abgaryan.areg@broadcom.com
         //  Save unverified user
         final UserEntity savedEntity = userService.createUnverifiedUser(entity);
 
@@ -85,31 +75,39 @@ public class UserManager {
         final UserSignupResponse savedResponse = userConverter.fromEntityToSignUpResponse(savedEntity);
 
         //  Set otp verification instructions
-        savedResponse.setOtpVerificationInstructions(createOTPInstructionsMessage(savedResponse.getEmail()));
+        savedResponse.setOtpVerificationInstructions(savedResponse.getEmail());
 
         //  Send one time password to the destination email
-        emailVerificationManager.sendEmail(signUpDto.getEmail(), otp);
+        emailVerificationManager.sendEmail(signUpDto.getEmail(), entity.getOtp());
 
         return savedResponse;
     }
 
-    public UserSignupResponse verifyUserEmail(UserVerifyEmailDTO verifyEmailDto) throws InvalidObjectException {
-
-        if (! isValidUser(verifyEmailDto)) {
-            throw new InvalidObjectException("Data cannot be empty");
-        }
+    public UserSignupResponse verifyUserEmail(UserVerifyEmailDTO verifyEmailDto) throws AddressException {
+        //  Validate user input
+        userInputValidator.validateUserInput(verifyEmailDto);
 
         //  Get epoch seconds of the moment
         final long now = Utils.getEpochSecondsNow();
 
         //  Get the user with specified email
-        final UserEntity entity = userService.findUserByEmail(verifyEmailDto.getEmail());
+        final String verifyDtoEmail = verifyEmailDto.getEmail();
+        final UserEntity entity = userService.findUserByEmail(verifyDtoEmail);
+
+        //  Check whether the user has already been verified or not
+        final UserStatus status = entity.getStatus();
+        if (! status.equals(UserStatus.UNVERIFIED)) {
+            switch (status) {
+                case ACTIVE -> exceptionMessage = "Access denied. The user with email " + verifyDtoEmail + " has already been verified";
+                case DELETED -> exceptionMessage = "Access denied. The user with email " + verifyDtoEmail + " is deleted";
+            }
+            throw new ForbiddenOperationException(exceptionMessage);
+        }
 
         //  Check whether the specified password is correct
         if (! entity.getPassword().equals(encryptionManager.encrypt(verifyEmailDto.getPassword(), entity.getSalt()))) {
-            throw new AuthenticationException();
+            throw new AuthenticationException("Invalid password for user " + entity.getEmail());
         } else {
-
             //  Check otp creation time. Timeout if 120 seconds passed
             if (entity.getOtpCreationTime() + 120 < now) {
                 userService.updateWithNoOtpData(entity);
@@ -125,9 +123,38 @@ public class UserManager {
             //  Save the updated user
             final UserEntity savedEntity = userService.saveVerifiedUser(entity);
 
-            //  Convert to response type and return
             return userConverter.fromEntityToSignUpResponse(savedEntity);
         }
+    }
+
+    public UserLoginResponse login(UserLoginDTO loginDto) throws AddressException {
+        //  Validate user input
+        userInputValidator.validateUserInput(loginDto);
+
+        final String email = loginDto.getEmail();
+
+        //  Disable logging in for unverified users
+        final UserSignupResponse userResponse = findUserByEmail(email);
+        final UserStatus status = userResponse.getStatus();
+        if (! status.equals(UserStatus.ACTIVE)) {
+            switch (status) {
+                case UNVERIFIED -> exceptionMessage = "Access denied. User with email '" + email + "' is not verified";
+                case DELETED -> exceptionMessage = "Access denied. User with email '" + email + "' is not active";
+            }
+            throw new ForbiddenOperationException(exceptionMessage);
+        }
+
+        //  Log in and update last login time
+        final var token = new UsernamePasswordToken(email, loginDto.getPassword());
+        SecurityUtils.getSubject().login(token);
+        updateLastLoginTime(email, Utils.getCurrentDateAndTime());
+
+        // Generate JWT token with user permissions
+        final Set<String> permissionsSet = userPermissionsWildcardBuilder.buildPermissionsWildcards(userResponse.getId());
+        final String jwtTokenString = jwtProvider.createJwtToken(email, permissionsSet);
+        final JwtToken jwtToken = JwtToken.create(jwtTokenString);
+
+        return new UserLoginResponse(userResponse.getFirstName(), userResponse.getLastName(), userResponse.getStatus(), jwtToken);
     }
 
     public UserSignupResponse findUserById(UUID id) {
@@ -145,65 +172,21 @@ public class UserManager {
         userService.updateLastLoginTime(email, loginDate);
     }
 
-    public Set<String> createUserPermissionsWildcards(UUID userId) {
 
-        final UserEntity userById = userService.findUserById(userId);
-        final UserGroupEntity userGroup = userById.getUserGroup();
-        if (userGroup == null) {
-            return Collections.emptySet();
-        }
+    private void fillSignUpEntityFields(UserEntity entity, String password) {
 
-        final AccessControlEntity accessControl = accessControlService.getByUserGroupId(userGroup.getId());
-        final Set<ObjectGroupEntity> objectGroupSet = accessControl.getObjectGroups();
-        final Set<String> wildcards = new HashSet<>();
+        //  Set salt
+        final String salt = encryptionManager.generateSalt();
+        entity.setSalt(salt);
 
-        for (var objectGroup : objectGroupSet) {
-            if (! objectGroup.getObjects().isEmpty()) {
-                final DomainEntity currentDomain = objectGroup.getObjects().stream()
-                        .iterator()
-                        .next()
-                        .getDomain();
-                wildcards.add(createUserPermissionsWildcard(
-                        currentDomain, objectGroup.getObjects(), accessControl.getRole().getPermissions()));
-            }
-        }
-        return wildcards;
-    }
+        //  Set encrypted password
+        final String encryptedPassword = encryptionManager.encrypt(password, salt);
+        entity.setPassword(encryptedPassword);
 
-
-    private String createUserPermissionsWildcard(DomainEntity domain, Set<ObjectEntity> objects,
-                                                 Set<PermissionEntity> permissions) {
-        final String permissionsString;
-        final String objectsString;
-
-        List<PermissionEntity> result = new ArrayList<>();
-        if (permissions != null && !permissions.isEmpty()) {
-            result = permissions.stream()
-                    .filter(perm -> perm.getDomain().equals(domain) && domain.getPermissions().contains(perm)).toList();
-        }
-
-        if (result.isEmpty()) {
-            return "";
-        }
-
-        permissionsString = result.stream().map(permission -> permission.getName() + ",").collect(Collectors.joining());
-        objectsString = objects.stream().map(objectEntity -> objectEntity.getExternalId().toString() + ",").collect(Collectors.joining());
-
-        return domain.getCode() + ":" + StringUtils.chop(permissionsString) + ":" + StringUtils.chop(objectsString);
-    }
-
-    //  Check whether the user is valid or not
-    private static boolean isValidUser(UserSignUpDTO userSignUpDto) {
-        return StringUtils.isNoneBlank(userSignUpDto.getEmail(), userSignUpDto.getPassword(),
-                userSignUpDto.getFirstName(), userSignUpDto.getLastName());
-    }
-    private static boolean isValidUser(UserVerifyEmailDTO userVerifyEmailDto) {
-        return StringUtils.isNoneBlank(userVerifyEmailDto.getEmail(), userVerifyEmailDto.getPassword());
-    }
-
-    //  Create a message for the user with OTP instructions for verifying email during sign up
-    private static String createOTPInstructionsMessage(String email) {
-        return "A one time password is sent to your " + email
-                + " address. Please, send it via this path " + EndpointsConstants.USER_SIGNUP_VERIFY_EMAIL;
+        //  Create one time password and set to the user entity
+        final int otp = emailVerificationManager.generateOneTimePassword();
+        entity.setOtp(otp);
+        final long otpCreationTime = Utils.getEpochSecondsNow();
+        entity.setOtpCreationTime(otpCreationTime);
     }
 }

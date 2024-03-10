@@ -22,6 +22,7 @@ public class UserConverter {
         signupResponse.setEmail(userEntity.getEmail());
         signupResponse.setFirstName(userEntity.getFirstName());
         signupResponse.setLastName(userEntity.getLastName());
+        signupResponse.setStatus(userEntity.getStatus());
         return signupResponse;
     }
 
