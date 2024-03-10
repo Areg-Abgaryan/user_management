@@ -48,6 +48,7 @@ public class EmailVerificationManager {
         mailSender.send(createMailMessage(emailAddress, otp));
     }
 
+    //  Check whether the email address is valid
     public void isValidEmailAddress(String email) throws AddressException {
         final var internetAddress = new InternetAddress(email);
         internetAddress.validate();

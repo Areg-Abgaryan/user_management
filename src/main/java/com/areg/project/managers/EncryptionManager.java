@@ -32,11 +32,7 @@ public class EncryptionManager {
     }
 
     public String encrypt(String password, String salt) {
-
-        if (StringUtils.isBlank(password)) {
-            return "";
-        }
-        if (StringUtils.isBlank(salt)) {
+        if (StringUtils.isAnyBlank(password, salt)) {
             return "";
         }
 

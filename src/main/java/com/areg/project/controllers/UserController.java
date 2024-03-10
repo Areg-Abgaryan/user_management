@@ -6,7 +6,6 @@ package com.areg.project.controllers;
 
 import com.areg.project.exceptions.BlankInputDataException;
 import com.areg.project.exceptions.ForbiddenOperationException;
-import com.areg.project.exceptions.InvalidEmailFormatException;
 import com.areg.project.exceptions.OtpTimeoutException;
 import com.areg.project.exceptions.UserNotFoundException;
 import com.areg.project.exceptions.WrongOtpException;
@@ -42,17 +41,15 @@ public class UserController {
         this.userManager = userManager;
     }
 
-    //  FIXME !! Move controller logic to UserManager class
 
-    //  Register the user in the system with status UNVERIFIED, after the api below change as ACTIVE
-    @Operation(summary = "User Sign up", description = "Registration of a new user in the system")
+    @Operation(summary = "User Sign up", description = "Registration of a new user in the system with 'UNVERIFIED' status")
     @PostMapping(SIGNUP)
     public ResponseEntity<?> signUp(@RequestBody UserSignUpDTO userSignUpDto) {
         //  FIXME !! Add validation, return message for unverified users
         //  FIXME !! Run a background job for removing all UNVERIFIED users after some time
         try {
             return ResponseEntity.ok(userManager.createUnverifiedUser(userSignUpDto));
-        } catch (InvalidEmailFormatException | AddressException ee) {
+        } catch (IllegalArgumentException | AddressException ee) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ee.getMessage());
         } catch (DataIntegrityViolationException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("User with such email already exists");
@@ -61,7 +58,7 @@ public class UserController {
         }
     }
 
-    @Operation(summary = "User Email Verification", description = "Verification of email during user sign up using OTP")
+    @Operation(summary = "User Email Verification", description = "Making user's status 'ACTIVE' by verifying the email using OTP")
     @PostMapping(SIGNUP + VERIFY_EMAIL)
     public ResponseEntity<?> verifyEmail(@RequestBody UserVerifyEmailDTO verifyEmailDto) {
         try {
@@ -83,7 +80,7 @@ public class UserController {
     @PostMapping(EndpointsConstants.LOGIN)
     public ResponseEntity<?> login(@RequestBody UserLoginDTO loginDto) {
         try {
-            ResponseEntity.ok(userManager.login(loginDto));
+            return ResponseEntity.ok(userManager.login(loginDto));
         } catch (BlankInputDataException bde) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(bde.getMessage());
         } catch (UserNotFoundException ue) {

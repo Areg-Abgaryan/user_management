@@ -60,6 +60,7 @@ public class UserManager {
         this.jwtProvider = jwtProvider;
     }
 
+
     public UserSignupResponse createUnverifiedUser(UserSignUpDTO signUpDto) throws AddressException {
         //  Validate user input
         userInputValidator.validateUserInput(signUpDto);
@@ -98,8 +99,8 @@ public class UserManager {
         final UserStatus status = entity.getStatus();
         if (! status.equals(UserStatus.UNVERIFIED)) {
             switch (status) {
-                case ACTIVE -> exceptionMessage = "Access denied. The user with email " + verifyDtoEmail + " has already been verified";
-                case DELETED -> exceptionMessage = "Access denied. The user with email " + verifyDtoEmail + " is deleted";
+                case ACTIVE -> exceptionMessage = "The user with email " + verifyDtoEmail + " has already been verified";
+                case DELETED -> exceptionMessage = "The user with email " + verifyDtoEmail + " is deleted";
             }
             throw new ForbiddenOperationException(exceptionMessage);
         }
@@ -147,6 +148,8 @@ public class UserManager {
         //  Log in and update last login time
         final var token = new UsernamePasswordToken(email, loginDto.getPassword());
         SecurityUtils.getSubject().login(token);
+
+        //  Update user's last log in time
         updateLastLoginTime(email, Utils.getCurrentDateAndTime());
 
         // Generate JWT token with user permissions
@@ -155,11 +158,6 @@ public class UserManager {
         final JwtToken jwtToken = JwtToken.create(jwtTokenString);
 
         return new UserLoginResponse(userResponse.getFirstName(), userResponse.getLastName(), userResponse.getStatus(), jwtToken);
-    }
-
-    public UserSignupResponse findUserById(UUID id) {
-        final UserEntity userEntity = userService.findUserById(id);
-        return userConverter.fromEntityToSignUpResponse(userEntity);
     }
 
     //  FIXME !! Return only ACTIVE users to api-s
@@ -174,7 +172,6 @@ public class UserManager {
 
 
     private void fillSignUpEntityFields(UserEntity entity, String password) {
-
         //  Set salt
         final String salt = encryptionManager.generateSalt();
         entity.setSalt(salt);

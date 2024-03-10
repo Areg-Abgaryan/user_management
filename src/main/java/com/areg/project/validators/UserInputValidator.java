@@ -27,24 +27,30 @@ public class UserInputValidator {
     }
 
     //  Check whether the user input is valid or not
-    //  FIXME !! Validate password, firstName, lastName
     public void validateUserInput(UserSignUpDTO signUpDto) throws AddressException {
         if (StringUtils.isAnyBlank(signUpDto.getEmail(), signUpDto.getPassword(), signUpDto.getFirstName(),
                 signUpDto.getLastName())) {
             throw new BlankInputDataException();
         }
         emailVerificationManager.isValidEmailAddress(signUpDto.getEmail());
+        inputPatternValidator.validatePassword(signUpDto.getPassword());
+        inputPatternValidator.validateFirstName(signUpDto.getFirstName());
+        inputPatternValidator.validateLastName(signUpDto.getLastName());
     }
+
     public void validateUserInput(UserVerifyEmailDTO verifyEmailDto) throws AddressException {
         if (StringUtils.isAnyBlank(verifyEmailDto.getEmail(), verifyEmailDto.getPassword())) {
             throw new BlankInputDataException();
         }
         emailVerificationManager.isValidEmailAddress(verifyEmailDto.getEmail());
+        inputPatternValidator.validatePassword(verifyEmailDto.getPassword());
     }
+
     public void validateUserInput(UserLoginDTO loginDto) throws AddressException {
         if (StringUtils.isAnyBlank(loginDto.getEmail(), loginDto.getPassword())) {
             throw new BlankInputDataException();
         }
         emailVerificationManager.isValidEmailAddress(loginDto.getEmail());
+        inputPatternValidator.validatePassword(loginDto.getPassword());
     }
 }
