@@ -57,7 +57,7 @@ public class JwtProvider {
                 .compact();
     }
 
-    //  Is used from controllers for checking whether the has permission for operation or not
+    //  Is used from controllers for checking whether the user has permission for operation or not
     public void checkPermissions(String jwtToken, String domain, String operation) {
         final List<String> permissionsFromToken = getPermissionsFromToken(jwtToken);
         if (permissionsFromToken.stream().noneMatch(perm -> perm.contains(domain) && !perm.contains(operation))) {

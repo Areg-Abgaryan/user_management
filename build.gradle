@@ -39,8 +39,7 @@ dependencies {
 
     //  Apache Shiro
     implementation ('org.apache.shiro:shiro-core:2.0.0-alpha-4:jakarta')
-    //  Some of Shiro's Jakarta-classified dependencies depend on the non-Jakarta variant of modules so
-    //  we have to do some juggling with exclusions
+    //  Some of Shiro's Jakarta-classified dependencies depend on the non-Jakarta variant of modules, so we have to do some juggling with exclusions
     implementation ('org.apache.shiro:shiro-spring:2.0.0-alpha-4:jakarta') {
         exclude group: 'org.apache.shiro', module: 'shiro-core'
         exclude group: 'org.apache.shiro', module: 'shiro-web'

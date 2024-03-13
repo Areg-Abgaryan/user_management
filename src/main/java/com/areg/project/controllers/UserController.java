@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -69,26 +70,38 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(une.getMessage());
         } catch (WrongOtpException | OtpTimeoutException pe) {
             return ResponseEntity.status(HttpStatus.REQUEST_TIMEOUT).body(pe.getMessage());
+        } catch (IllegalArgumentException iae) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(iae.getMessage());
         } catch (org.apache.shiro.authc.AuthenticationException ae) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Wrong password provided");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Wrong password provided");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal server error");
         }
     }
 
-    @Operation(summary = "User Login", description = "Login user in the system. The user with the JWT token is returned")
+    @Operation(summary = "User Log in", description = "Log in the user in the system. The user with the JWT token is returned")
     @PostMapping(EndpointsConstants.LOGIN)
     public ResponseEntity<?> login(@RequestBody UserLoginDTO loginDto) {
         try {
             return ResponseEntity.ok(userManager.login(loginDto));
-        } catch (BlankInputDataException bde) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(bde.getMessage());
+        } catch (BlankInputDataException | IllegalArgumentException ide) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ide.getMessage());
         } catch (UserNotFoundException ue) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Couldn't find a user with this email");
         } catch (org.apache.shiro.authc.AuthenticationException ae) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Wrong password provided");
         } catch (ForbiddenOperationException foe) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(foe.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal server error");
+        }
+    }
+
+    @Operation(summary = "Get all users", description = "Get all active users in the system")
+    @GetMapping(EndpointsConstants.GET_ALL)
+    public ResponseEntity<?> getAllUsers() {
+        try {
+            return ResponseEntity.ok(userManager.getAllActiveUsers());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal server error");
         }

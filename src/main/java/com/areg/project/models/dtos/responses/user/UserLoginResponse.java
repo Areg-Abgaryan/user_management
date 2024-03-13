@@ -14,8 +14,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-@Getter
-@Setter
+@Getter @Setter
 @AllArgsConstructor
 public class UserLoginResponse {
 

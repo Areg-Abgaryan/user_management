@@ -45,7 +45,7 @@ public class UserEntity extends CreateUpdateEntity {
     private String salt;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status")
+    @Column(name = "user_status")
     private UserStatus status;
 
     @CreatedDate

@@ -1,4 +1,4 @@
-INSERT INTO public.user (id, created, updated, email, external_id, first_name, last_login, last_name, otp, otp_creation_time, password, salt, status, user_group_id) VALUES (8, '2024-03-09 02:33:07.625000', '2024-03-09 02:39:07.625000', 'user@gmail.com', '9c6237a8-a731-4f4a-a45d-b4c5b4291741', 'User', '2024-03-09 02:47:39.625000', 'Useryan', '12345', '1709937187', 'R5X6T6/cGTSqRS9jvj/x1LgLnacVRKU3qN/U4mqskmg=', 'xl3h&2bWF&23GxI2', 'ACTIVE', 2)
+INSERT INTO public.user (id, created, updated, email, external_id, first_name, last_login, last_name, otp, otp_creation_time, password, salt, user_status, user_group_id) VALUES (8, '2024-03-09 02:33:07.625000', '2024-03-09 02:39:07.625000', 'user@gmail.com', '9c6237a8-a731-4f4a-a45d-b4c5b4291741', 'User', '2024-03-09 02:47:39.625000', 'Useryan', '12345', '1709937187', 'R5X6T6/cGTSqRS9jvj/x1LgLnacVRKU3qN/U4mqskmg=', 'xl3h&2bWF&23GxI2', 'ACTIVE', 2)
 
 INSERT INTO public.user_group (id, external_id, name) VALUES (1,'1eee76f6-e63b-46b9-9265-5597cd61aaba', 'AdminGroup');
 INSERT INTO public.user_group (id, external_id, name) VALUES (2,'2eee76f6-e63b-46b9-9265-5597cd61aaba', 'UserGroup');

@@ -14,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -29,25 +31,25 @@ public class UserService implements IUserService {
 
 
     @Override
-    public UserEntity createUnverifiedUser(UserEntity userEntity) {
-        userEntity.setStatus(UserStatus.UNVERIFIED);
-        userEntity.setExternalId(UUID.randomUUID());
-        userEntity.setCreated(Utils.getCurrentDateAndTime());
-        userEntity.setUpdated(Utils.getCurrentDateAndTime());
-        return userRepository.save(userEntity);
+    public UserEntity createUnverifiedUser(UserEntity entity) {
+        entity.setStatus(UserStatus.UNVERIFIED);
+        entity.setExternalId(UUID.randomUUID());
+        entity.setCreated(Utils.getCurrentDateAndTime());
+        entity.setUpdated(Utils.getCurrentDateAndTime());
+        return userRepository.save(entity);
     }
 
     @Override
-    public UserEntity saveVerifiedUser(UserEntity userEntity) {
-        userEntity.setStatus(UserStatus.ACTIVE);
-        return userRepository.saveAndFlush(userEntity);
+    public UserEntity saveVerifiedUser(UserEntity entity) {
+        entity.setStatus(UserStatus.ACTIVE);
+        return userRepository.saveAndFlush(entity);
     }
 
     @Override
-    public void updateWithNoOtpData(UserEntity userEntity) {
-        userEntity.setOtp(0);
-        userEntity.setOtpCreationTime(0);
-        userRepository.save(userEntity);
+    public void removeOtpData(UserEntity entity) {
+        entity.setOtp(0);
+        entity.setOtpCreationTime(0);
+        userRepository.save(entity);
     }
 
     @Override
@@ -62,11 +64,16 @@ public class UserService implements IUserService {
 
     @Override
     public void updateLastLoginTime(String email, LocalDateTime lastLoginDate) {
-        final Optional<UserEntity> userEntity = userRepository.findByEmail(email);
-        if (userEntity.isEmpty()) {
+        final Optional<UserEntity> entity = userRepository.findByEmail(email);
+        if (entity.isEmpty()) {
             return;
         }
-        userEntity.get().setLastLoginTime(lastLoginDate);
-        userRepository.saveAndFlush(userEntity.get());
+        entity.get().setLastLoginTime(lastLoginDate);
+        userRepository.saveAndFlush(entity.get());
+    }
+
+    @Override
+    public List<UserEntity> getAllActiveUsers() {
+        return userRepository.getAllActiveUsers();
     }
 }

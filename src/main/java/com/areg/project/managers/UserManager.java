@@ -6,11 +6,11 @@ package com.areg.project.managers;
 
 import com.areg.project.builders.UserPermissionsWildcardBuilder;
 import com.areg.project.converters.UserConverter;
-import com.areg.project.exceptions.BlankInputDataException;
 import com.areg.project.exceptions.ForbiddenOperationException;
 import com.areg.project.exceptions.OtpTimeoutException;
 import com.areg.project.exceptions.WrongOtpException;
 import com.areg.project.models.UserStatus;
+import com.areg.project.models.dtos.UserDTO;
 import com.areg.project.models.dtos.requests.user.UserLoginDTO;
 import com.areg.project.models.dtos.requests.user.UserSignUpDTO;
 import com.areg.project.models.dtos.requests.user.UserVerifyEmailDTO;
@@ -23,7 +23,6 @@ import com.areg.project.services.implementations.UserService;
 import com.areg.project.utils.Utils;
 import com.areg.project.validators.UserInputValidator;
 import jakarta.mail.internet.AddressException;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.UsernamePasswordToken;
@@ -32,7 +31,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.Set;
-import java.util.UUID;
 
 @Service
 public class UserManager {
@@ -84,6 +82,7 @@ public class UserManager {
         return savedResponse;
     }
 
+    //  FIXME !! We have a bug for this scenario : When user signs up but can't succeed to enter otp in time, he can't verify himself at all, we don't have logic here
     public UserSignupResponse verifyUserEmail(UserVerifyEmailDTO verifyEmailDto) throws AddressException {
         //  Validate user input
         userInputValidator.validateUserInput(verifyEmailDto);
@@ -111,13 +110,13 @@ public class UserManager {
         } else {
             //  Check otp creation time. Timeout if 120 seconds passed
             if (entity.getOtpCreationTime() + 120 < now) {
-                userService.updateWithNoOtpData(entity);
+                userService.removeOtpData(entity);
                 throw new OtpTimeoutException();
             }
 
             //  Check otp
             if (verifyEmailDto.getOtp() != entity.getOtp()) {
-                userService.updateWithNoOtpData(entity);
+                userService.removeOtpData(entity);
                 throw new WrongOtpException();
             }
 
@@ -134,6 +133,7 @@ public class UserManager {
 
         final String email = loginDto.getEmail();
 
+        //  FIXME !! I don't think this is a good way. I'd be better to have 2 implementations of UserService, for active users and for all ones
         //  Disable logging in for unverified users
         final UserSignupResponse userResponse = findUserByEmail(email);
         final UserStatus status = userResponse.getStatus();
@@ -145,7 +145,7 @@ public class UserManager {
             throw new ForbiddenOperationException(exceptionMessage);
         }
 
-        //  Log in and update last login time
+        //  Log in and update last log in time
         final var token = new UsernamePasswordToken(email, loginDto.getPassword());
         SecurityUtils.getSubject().login(token);
 
@@ -162,8 +162,8 @@ public class UserManager {
 
     //  FIXME !! Return only ACTIVE users to api-s
     public UserSignupResponse findUserByEmail(String email) {
-        final UserEntity userEntity = userService.findUserByEmail(email);
-        return userConverter.fromEntityToSignUpResponse(userEntity);
+        final UserEntity entity = userService.findUserByEmail(email);
+        return userConverter.fromEntityToSignUpResponse(entity);
     }
 
     public void updateLastLoginTime(String email, LocalDateTime loginDate) {
@@ -185,5 +185,9 @@ public class UserManager {
         entity.setOtp(otp);
         final long otpCreationTime = Utils.getEpochSecondsNow();
         entity.setOtpCreationTime(otpCreationTime);
+    }
+
+    public Set<UserDTO> getAllActiveUsers() {
+        return userConverter.fromEntityToDto(userService.getAllActiveUsers());
     }
 }

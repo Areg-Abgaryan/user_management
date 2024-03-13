@@ -2,32 +2,33 @@
  * Copyright (c) 2024 Areg Abgaryan
  */
 
-package com.areg.project.models.dtos.responses.user;
+package com.areg.project.models.dtos;
 
-import com.areg.project.managers.EmailVerificationManager;
 import com.areg.project.models.UserStatus;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Getter @Setter
-public class UserSignupResponse {
+public class UserDTO {
 
     @JsonProperty("id")
     @NotBlank private UUID id;
 
     @JsonProperty("email")
-    @NotBlank @Email private String email;
+    @NotBlank @Email
+    private String email;
 
     @JsonProperty("first_name")
-    @NotBlank private String firstName;
+    @NotBlank
+    private String firstName;
 
     @JsonProperty("last_name")
     @NotBlank private String lastName;
@@ -35,10 +36,12 @@ public class UserSignupResponse {
     @JsonProperty("status")
     @NotBlank private UserStatus status;
 
-    @JsonProperty("otp_verification_instructions")
-    @NotBlank private String otpVerificationInstructions;
+    @JsonProperty("created")
+    @NotBlank private LocalDateTime created;
 
-    public void setOtpVerificationInstructions(String email) {
-        otpVerificationInstructions = EmailVerificationManager.createOTPInstructionsMessage(email);
-    }
+    @JsonProperty("updated")
+    @NotBlank private LocalDateTime updated;
+
+    @JsonProperty("last_login")
+    @NotBlank private LocalDateTime lastLoginTime;
 }
