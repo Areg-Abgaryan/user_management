@@ -13,6 +13,7 @@ import com.areg.project.models.entities.UserEntity;
 import com.areg.project.models.entities.UserGroupEntity;
 import com.areg.project.services.implementations.AccessControlService;
 import com.areg.project.services.implementations.UserService;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -40,7 +41,7 @@ public class UserPermissionsWildcardBuilder {
 
     public Set<String> buildPermissionsWildcards(UUID userId) {
 
-        final UserEntity userById = userService.findUserById(userId);
+        final UserEntity userById = userService.getUserById(userId);
         final UserGroupEntity userGroup = userById.getUserGroup();
         if (userGroup == null) {
             return Collections.emptySet();
@@ -66,11 +67,9 @@ public class UserPermissionsWildcardBuilder {
 
     private String buildPermissionsWildcard(DomainEntity domain, Set<ObjectEntity> objects,
                                             Set<PermissionEntity> permissions) {
-        final String permissionsString;
-        final String objectsString;
 
         List<PermissionEntity> result = new ArrayList<>();
-        if (permissions != null && !permissions.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(permissions)) {
             result = permissions.stream()
                     .filter(perm -> perm.getDomain().equals(domain) && domain.getPermissions().contains(perm)).toList();
         }
@@ -79,8 +78,8 @@ public class UserPermissionsWildcardBuilder {
             return "";
         }
 
-        permissionsString = result.stream().map(permission -> permission.getName() + ",").collect(Collectors.joining());
-        objectsString = objects.stream().map(objectEntity -> objectEntity.getExternalId().toString() + ",").collect(Collectors.joining());
+        final String permissionsString = result.stream().map(permission -> permission.getName() + ",").collect(Collectors.joining());
+        final String objectsString = objects.stream().map(objectEntity -> objectEntity.getExternalId().toString() + ",").collect(Collectors.joining());
 
         return domain.getCode() + ":" + StringUtils.chop(permissionsString) + ":" + StringUtils.chop(objectsString);
     }

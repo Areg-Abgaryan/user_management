@@ -57,7 +57,7 @@ public class EmailVerificationManager {
     //  Create a message for the user with OTP instructions for verifying email during sign up
     public static String createOTPInstructionsMessage(String email) {
         return "A one time password is sent to your " + email
-                + " address. Please, send it via this path " + EndpointsConstants.USER_SIGNUP_VERIFY_EMAIL;
+                + " address. Please, send it via this path " + EndpointsConstants.AUTH_SIGNUP_VERIFY_EMAIL;
     }
 
 

@@ -8,6 +8,7 @@ import com.areg.project.builders.UserPermissionsWildcardBuilder;
 import com.areg.project.converters.UserConverter;
 import com.areg.project.exceptions.ForbiddenOperationException;
 import com.areg.project.exceptions.OtpTimeoutException;
+import com.areg.project.exceptions.UserNotFoundException;
 import com.areg.project.exceptions.WrongOtpException;
 import com.areg.project.models.UserStatus;
 import com.areg.project.models.dtos.UserDTO;
@@ -27,6 +28,7 @@ import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -37,6 +39,8 @@ public class UserManager {
 
     private static String exceptionMessage;
 
+    private final int otpTimeoutSeconds;
+
     private final UserService userService;
     private final UserInputValidator userInputValidator;
     private final UserConverter userConverter;
@@ -46,9 +50,10 @@ public class UserManager {
     private final JwtProvider jwtProvider;
 
     @Autowired
-    public UserManager(UserService userService, UserInputValidator userInputValidator, UserConverter userConverter,
+    public UserManager(@Value("${otp.timeout.seconds}") int otpTimeoutSeconds, UserService userService, UserInputValidator userInputValidator, UserConverter userConverter,
                        EncryptionManager encryptionManager, EmailVerificationManager emailVerificationManager,
                        UserPermissionsWildcardBuilder userPermissionsWildcardBuilder, JwtProvider jwtProvider) {
+        this.otpTimeoutSeconds = otpTimeoutSeconds;
         this.userService = userService;
         this.userInputValidator = userInputValidator;
         this.userConverter = userConverter;
@@ -63,25 +68,33 @@ public class UserManager {
         //  Validate user input
         userInputValidator.validateUserInput(signUpDto);
 
+        //  Check whether the user already has tried to sign up
+        UserEntity getOrCreateUserEntity = userService.getUserByEmail(signUpDto.getEmail());
         final UserEntity entity = userConverter.fromSignUpDtoToEntity(signUpDto);
-        fillSignUpEntityFields(entity, signUpDto.getPassword());
 
-        //  Save unverified user
-        final UserEntity savedEntity = userService.createUnverifiedUser(entity);
+        //  Create a new user in the system
+        if (getOrCreateUserEntity == null) {
+            //  Convert dto to entity and set fields
+            fillSignUpEntityCryptoFields(entity, signUpDto.getPassword());
 
-        //  Convert to response type
-        final UserSignupResponse savedResponse = userConverter.fromEntityToSignUpResponse(savedEntity);
+            //  Save unverified user
+            getOrCreateUserEntity = userService.createUnverifiedUser(entity);
 
-        //  Set otp verification instructions
-        savedResponse.setOtpVerificationInstructions(savedResponse.getEmail());
+            return processUserAndSendEmail(getOrCreateUserEntity);
+        }
 
-        //  Send one time password to the destination email
-        emailVerificationManager.sendEmail(signUpDto.getEmail(), entity.getOtp());
-
-        return savedResponse;
+        switch (getOrCreateUserEntity.getStatus()) {
+            case UNVERIFIED -> {
+                //  Create a new otp
+                fillOtpFields(getOrCreateUserEntity);
+                return processUserAndSendEmail(getOrCreateUserEntity);
+            }
+            case DELETED -> throw new ForbiddenOperationException("The user is deleted from the system");
+            case ACTIVE -> throw new ForbiddenOperationException("The user is signed up and verified, go to log in");
+            default -> throw new IllegalArgumentException();
+        }
     }
 
-    //  FIXME !! We have a bug for this scenario : When user signs up but can't succeed to enter otp in time, he can't verify himself at all, we don't have logic here
     public UserSignupResponse verifyUserEmail(UserVerifyEmailDTO verifyEmailDto) throws AddressException {
         //  Validate user input
         userInputValidator.validateUserInput(verifyEmailDto);
@@ -91,7 +104,12 @@ public class UserManager {
 
         //  Get the user with specified email
         final String verifyDtoEmail = verifyEmailDto.getEmail();
-        final UserEntity entity = userService.findUserByEmail(verifyDtoEmail);
+        final UserEntity entity = userService.getUserByEmail(verifyDtoEmail);
+
+        //  Check whether the user exists in the system
+        if (entity == null) {
+            throw new UserNotFoundException(verifyDtoEmail);
+        }
 
         //  Check whether the user has already been verified or not
         final UserStatus status = entity.getStatus();
@@ -107,16 +125,14 @@ public class UserManager {
         if (! entity.getPassword().equals(encryptionManager.encrypt(verifyEmailDto.getPassword(), entity.getSalt()))) {
             throw new AuthenticationException("Invalid password for user " + entity.getEmail());
         } else {
-            //  FIXME !! A bug here, when user tries to execute wrong otp, then the right one, it is time outed
             //  Check otp creation time. Timeout if 120 seconds passed
-            if (entity.getOtpCreationTime() + 120 < now) {
+            if (entity.getOtpCreationTime() + otpTimeoutSeconds < now) {
                 userService.removeOtpData(entity);
                 throw new OtpTimeoutException();
             }
 
             //  Check otp
             if (verifyEmailDto.getOtp() != entity.getOtp()) {
-                userService.removeOtpData(entity);
                 throw new WrongOtpException();
             }
 
@@ -133,9 +149,15 @@ public class UserManager {
 
         final String email = loginDto.getEmail();
 
-        //  FIXME !! I don't think this is a good way. I'd be better to have 2 implementations of UserService, for active users and for all ones
+        //  FIXME !! I don't think this is a good way. Have 2 implementations of UserService, for active users and for all ones ?
+
+        //  Check whether the user exists in the system
+        final UserSignupResponse userResponse = getUserByEmail(email);
+        if (userResponse == null) {
+            throw new UserNotFoundException(email);
+        }
+
         //  Disable logging in for unverified users
-        final UserSignupResponse userResponse = findUserByEmail(email);
         final UserStatus status = userResponse.getStatus();
         if (! status.equals(UserStatus.ACTIVE)) {
             switch (status) {
@@ -161,8 +183,8 @@ public class UserManager {
     }
 
     //  FIXME !! Return only ACTIVE users to api-s
-    public UserSignupResponse findUserByEmail(String email) {
-        final UserEntity entity = userService.findUserByEmail(email);
+    public UserSignupResponse getUserByEmail(String email) {
+        final UserEntity entity = userService.getUserByEmail(email);
         return userConverter.fromEntityToSignUpResponse(entity);
     }
 
@@ -170,8 +192,29 @@ public class UserManager {
         userService.updateLastLoginTime(email, loginDate);
     }
 
+    public Set<UserDTO> getAllActiveUsers() {
+        return userConverter.fromEntityToDto(userService.getAllActiveUsers());
+    }
 
-    private void fillSignUpEntityFields(UserEntity entity, String password) {
+
+    private UserSignupResponse processUserAndSendEmail(UserEntity userEntity) {
+        //  Convert to response type
+        final UserSignupResponse signUpResponse = userConverter.fromEntityToSignUpResponse(userEntity);
+
+        //  Set otp verification instructions
+        signUpResponse.setOtpVerificationInstructions(signUpResponse.getEmail());
+
+        //  Send one time password to the destination email
+        emailVerificationManager.sendEmail(userEntity.getEmail(), userEntity.getOtp());
+
+        return signUpResponse;
+    }
+
+    private void fillSignUpEntityCryptoFields(UserEntity entity, String password) {
+        if (entity == null) {
+            return;
+        }
+
         //  Set salt
         final String salt = encryptionManager.generateSalt();
         entity.setSalt(salt);
@@ -180,14 +223,16 @@ public class UserManager {
         final String encryptedPassword = encryptionManager.encrypt(password, salt);
         entity.setPassword(encryptedPassword);
 
+        fillOtpFields(entity);
+    }
+
+    private void fillOtpFields(UserEntity entity) {
         //  Create one time password and set to the user entity
         final int otp = emailVerificationManager.generateOneTimePassword();
         entity.setOtp(otp);
+
         final long otpCreationTime = Utils.getEpochSecondsNow();
         entity.setOtpCreationTime(otpCreationTime);
-    }
-
-    public Set<UserDTO> getAllActiveUsers() {
-        return userConverter.fromEntityToDto(userService.getAllActiveUsers());
+        userService.updateUser(entity);
     }
 }

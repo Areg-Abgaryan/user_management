@@ -56,13 +56,13 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public UserEntity findUserById(UUID id) throws UserNotFoundException {
+    public UserEntity getUserById(UUID id) throws UserNotFoundException {
         return userRepository.findByExternalId(id).orElseThrow(() -> new UserNotFoundException(id));
     }
 
     @Override
-    public UserEntity findUserByEmail(String email) throws UserNotFoundException {
-        return userRepository.findByEmail(email).orElseThrow(() -> new UserNotFoundException(email));
+    public UserEntity getUserByEmail(String email) {
+        return userRepository.findByEmail(email).orElse(null);
     }
 
     @Override
@@ -78,5 +78,10 @@ public class UserService implements IUserService {
     @Override
     public List<UserEntity> getAllActiveUsers() {
         return userRepository.getAllActiveUsers();
+    }
+
+    @Override
+    public void updateUser(UserEntity entity) {
+        userRepository.saveAndFlush(entity);
     }
 }

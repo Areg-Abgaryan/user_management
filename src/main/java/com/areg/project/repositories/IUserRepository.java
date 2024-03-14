@@ -21,7 +21,7 @@ public interface IUserRepository extends JpaRepository<UserEntity, Long> {
 
     Optional<UserEntity> findByEmail(String email);
 
-    @Query(nativeQuery = true, value = "SELECT * FROM user WHERE \"user_status\" = 'ACTIVE'")
+    @Query(nativeQuery = true, value = "SELECT * FROM \"user\" WHERE user_status = 'ACTIVE'")
     List<UserEntity> getAllActiveUsers();
 
     void deleteAllByStatus(UserStatus status);

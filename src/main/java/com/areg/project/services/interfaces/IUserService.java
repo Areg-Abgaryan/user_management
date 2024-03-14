@@ -18,11 +18,13 @@ public interface IUserService {
 
     void removeOtpData(UserEntity userEntity);
 
-    UserEntity findUserById(UUID id);
+    UserEntity getUserById(UUID id);
 
-    UserEntity findUserByEmail(String email);
+    UserEntity getUserByEmail(String email);
 
     void updateLastLoginTime(String email, LocalDateTime lastLoginDate);
 
     List<UserEntity> getAllActiveUsers();
+
+    void updateUser(UserEntity entity);
 }
