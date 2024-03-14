@@ -29,6 +29,7 @@ public class UserGroupController {
     }
 
 
+    //  FIXME !! Add jwt token auth check here
     @Operation(summary = "Get all user groups", description = "Get all user groups in the system")
     @GetMapping(EndpointsConstants.GET_ALL)
     public ResponseEntity<?> getAllUserGroups() {

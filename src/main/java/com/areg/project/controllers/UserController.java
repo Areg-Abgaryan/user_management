@@ -46,8 +46,7 @@ public class UserController {
     @Operation(summary = "User Sign up", description = "Registration of a new user in the system with 'UNVERIFIED' status")
     @PostMapping(SIGNUP)
     public ResponseEntity<?> signUp(@RequestBody UserSignUpDTO userSignUpDto) {
-        //  FIXME !! Add validation, return message for unverified users
-        //  FIXME !! Run a background job for removing all UNVERIFIED users after some time
+        //  FIXME !! Validate when the user with that email already exists and is unverified
         try {
             return ResponseEntity.ok(userManager.createUnverifiedUser(userSignUpDto));
         } catch (IllegalArgumentException | AddressException ee) {

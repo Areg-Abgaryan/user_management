@@ -13,7 +13,7 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 import java.util.Properties;
 
 @Configuration
-public class MailSenderConfig {
+public class MailSenderConfiguration {
 
     @Value("${spring.mail.host}")
     private String host;
@@ -35,7 +35,6 @@ public class MailSenderConfig {
 
     @Bean
     public JavaMailSender getMailSender() {
-
         final var mailSender = new JavaMailSenderImpl();
         mailSender.setHost(host);
         mailSender.setPort(port);

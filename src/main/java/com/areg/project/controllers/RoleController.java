@@ -29,6 +29,7 @@ public class RoleController {
     }
 
 
+    //  FIXME !! Add jwt token auth check here
     @Operation(summary = "Get all roles", description = "Get all roles in the system")
     @GetMapping(EndpointsConstants.GET_ALL)
     public ResponseEntity<?> getAllRoles() {

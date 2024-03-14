@@ -4,6 +4,7 @@
 
 package com.areg.project.repositories;
 
+import com.areg.project.models.UserStatus;
 import com.areg.project.models.entities.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -20,6 +21,8 @@ public interface IUserRepository extends JpaRepository<UserEntity, Long> {
 
     Optional<UserEntity> findByEmail(String email);
 
-    @Query(nativeQuery = true, value = "SELECT * FROM \"user\" WHERE \"user_status\" = 'ACTIVE'")
+    @Query(nativeQuery = true, value = "SELECT * FROM user WHERE \"user_status\" = 'ACTIVE'")
     List<UserEntity> getAllActiveUsers();
+
+    void deleteAllByStatus(UserStatus status);
 }

@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 public class JwtUserDetailsService implements UserDetailsService {
 
     private final UserService userService;
-
+    //  FIXME !! Check this, this implements spring security
     @Autowired
     public JwtUserDetailsService(@Lazy UserService userService) {
         this.userService = userService;

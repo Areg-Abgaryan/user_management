@@ -12,6 +12,7 @@ import com.areg.project.services.interfaces.IUserService;
 import com.areg.project.utils.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -31,6 +32,7 @@ public class UserService implements IUserService {
 
 
     @Override
+    @Transactional
     public UserEntity createUnverifiedUser(UserEntity entity) {
         entity.setStatus(UserStatus.UNVERIFIED);
         entity.setExternalId(UUID.randomUUID());
@@ -40,6 +42,7 @@ public class UserService implements IUserService {
     }
 
     @Override
+    @Transactional
     public UserEntity saveVerifiedUser(UserEntity entity) {
         entity.setStatus(UserStatus.ACTIVE);
         return userRepository.saveAndFlush(entity);

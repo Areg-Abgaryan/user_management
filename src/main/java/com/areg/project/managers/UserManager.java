@@ -66,7 +66,6 @@ public class UserManager {
         final UserEntity entity = userConverter.fromSignUpDtoToEntity(signUpDto);
         fillSignUpEntityFields(entity, signUpDto.getPassword());
 
-        //  FIXME !! Validate when the user with that email already exists
         //  Save unverified user
         final UserEntity savedEntity = userService.createUnverifiedUser(entity);
 
@@ -108,6 +107,7 @@ public class UserManager {
         if (! entity.getPassword().equals(encryptionManager.encrypt(verifyEmailDto.getPassword(), entity.getSalt()))) {
             throw new AuthenticationException("Invalid password for user " + entity.getEmail());
         } else {
+            //  FIXME !! A bug here, when user tries to execute wrong otp, then the right one, it is time outed
             //  Check otp creation time. Timeout if 120 seconds passed
             if (entity.getOtpCreationTime() + 120 < now) {
                 userService.removeOtpData(entity);
@@ -139,8 +139,8 @@ public class UserManager {
         final UserStatus status = userResponse.getStatus();
         if (! status.equals(UserStatus.ACTIVE)) {
             switch (status) {
-                case UNVERIFIED -> exceptionMessage = "Access denied. User with email '" + email + "' is not verified";
-                case DELETED -> exceptionMessage = "Access denied. User with email '" + email + "' is not active";
+                case UNVERIFIED -> exceptionMessage = "User with email '" + email + "' is not verified";
+                case DELETED -> exceptionMessage = "User with email '" + email + "' is not active";
             }
             throw new ForbiddenOperationException(exceptionMessage);
         }
