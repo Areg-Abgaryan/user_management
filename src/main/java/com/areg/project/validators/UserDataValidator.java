@@ -29,12 +29,28 @@ public class UserDataValidator {
     }
 
 
-    public void blockInactiveUserLogin(UserStatus userStatus, String email) {
-        forbidAuthOperationForUser(userStatus, email);
+    //  Disable logging in for users that do not have 'ACTIVE' status
+    public void blockInactiveUserLogin(UserStatus status, String email) {
+        if (! status.equals(UserStatus.ACTIVE)) {
+            final String exceptionMessage = switch (status) {
+                case UNVERIFIED -> "The user with email " + email + " is not verified";
+                case DELETED -> "The user with email " + email + " is deleted";
+                default -> "Invalid user status";
+            };
+            throw new ForbiddenOperationException(exceptionMessage);
+        }
     }
 
+    //  Disable email verifying for users that do not have 'UNVERIFIED' status
     public void blockVerifiedUserEmailVerification(UserStatus status, String email) {
-        forbidAuthOperationForUser(status, email);
+        if (! status.equals(UserStatus.UNVERIFIED)) {
+            final String exceptionMessage = switch (status) {
+                case ACTIVE -> "The user with email " + email + " has already been verified";
+                case DELETED -> "The user with email " + email + " is deleted";
+                default -> "Invalid user status";
+            };
+            throw new ForbiddenOperationException(exceptionMessage);
+        }
     }
 
     public void validateOtp(UserEntity entity, UserVerifyEmailDTO verifyEmailDto) {
@@ -50,18 +66,6 @@ public class UserDataValidator {
         //  Check otp
         if (verifyEmailDto.getOtp() != entity.getOtp()) {
             throw new WrongOtpException();
-        }
-    }
-
-
-    private void forbidAuthOperationForUser(UserStatus status, String email) {
-        if (! status.equals(UserStatus.UNVERIFIED)) {
-            final String exceptionMessage = switch (status) {
-                case ACTIVE -> "The user with email " + email + " has already been verified";
-                case DELETED -> "The user with email " + email + " is deleted";
-                default -> "Invalid user status";
-            };
-            throw new ForbiddenOperationException(exceptionMessage);
         }
     }
 }

@@ -18,9 +18,6 @@ import org.apache.shiro.authz.AuthorizationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -37,15 +34,13 @@ public class JwtProvider {
 
     private final String secret;
     private final long validTimeMillis;
-    private final JwtUserDetailsService jwtUserDetailsService;
     private final PermissionsWildcardBuilder permissionsWildcardBuilder;
 
     @Autowired
     public JwtProvider(@Value("${jwt.secret}") String secret, @Value("${jwt.expired}") long validTimeMillis,
-                       JwtUserDetailsService jwtUserDetailsService, PermissionsWildcardBuilder permissionsWildcardBuilder) {
+                       PermissionsWildcardBuilder permissionsWildcardBuilder) {
         this.secret = Base64.getEncoder().encodeToString(secret.getBytes());
         this.validTimeMillis = validTimeMillis;
-        this.jwtUserDetailsService = jwtUserDetailsService;
         this.permissionsWildcardBuilder = permissionsWildcardBuilder;
     }
 
@@ -82,11 +77,6 @@ public class JwtProvider {
         } catch (JwtException | IllegalArgumentException e) {
             return false;
         }
-    }
-
-    public Authentication getAuthentication(String token) {
-        final UserDetails userDetails = jwtUserDetailsService.loadUserByUsername(getEmailFromToken(token));
-        return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
 
     public String resolveToken(HttpServletRequest request) {

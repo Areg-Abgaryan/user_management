@@ -32,8 +32,8 @@ public class ShiroConfig {
     public ShiroFilterChainDefinition shiroFilterChainDefinition() {
         final var chainDefinition = new DefaultShiroFilterChainDefinition();
 
-        //  These paths should be accessible without requiring authentication.
         //  FIXME !! Check this
+        //  These paths should be accessible without requiring authentication.
         chainDefinition.addPathDefinition(EndpointsConstants.API, "anon");
         chainDefinition.addPathDefinition(EndpointsConstants.LOGIN, "anon");
 

@@ -7,7 +7,6 @@ package com.areg.project.managers;
 import com.areg.project.converters.UserConverter;
 import com.areg.project.exceptions.ForbiddenOperationException;
 import com.areg.project.exceptions.UserNotFoundException;
-import com.areg.project.models.UserStatus;
 import com.areg.project.models.dtos.UserDTO;
 import com.areg.project.models.dtos.requests.user.UserLoginDTO;
 import com.areg.project.models.dtos.requests.user.UserSignUpDTO;
@@ -34,8 +33,6 @@ import java.util.Set;
 @Service
 public class UserManager {
 
-    private static String exceptionMessage;
-
     private final UserService userService;
     private final UserConverter userConverter;
     private final UserInputValidator userInputValidator;
@@ -60,29 +57,24 @@ public class UserManager {
 
 
     public UserSignupResponse createUnverifiedUser(UserSignUpDTO signUpDto) throws AddressException {
-        //  Validate user input
+
         userInputValidator.validateUserInput(signUpDto);
 
         //  Check whether the user already has tried to sign up
-        UserEntity existingUserEntity = userService.getUserByEmail(signUpDto.getEmail());
-        final UserEntity newUserEntity = userConverter.fromSignUpDtoToEntity(signUpDto);
+        UserEntity entity = userService.getUserByEmail(signUpDto.getEmail());
 
-        //  Create a new user in the system
-        if (existingUserEntity == null) {
-            //  Convert dto to entity and set fields
-            fillSignUpEntityCryptoFields(newUserEntity, signUpDto.getPassword());
-
-            //  Save unverified user
-            existingUserEntity = userService.createUnverifiedUser(newUserEntity);
-
-            return processUserAndSendEmail(existingUserEntity);
+        if (entity == null) {
+            //  Convert from dto, set crypto fields, create a new user in the system and send otp email
+            entity = userConverter.fromSignUpDtoToEntity(signUpDto);
+            fillSignUpEntityCryptoFields(entity, signUpDto.getPassword());
+            return processUserAndSendEmail(userService.createUnverifiedUser(entity));
         }
 
-        switch (existingUserEntity.getStatus()) {
+        switch (entity.getStatus()) {
             case UNVERIFIED -> {
                 //  Create a new otp
-                fillOtpFields(existingUserEntity);
-                return processUserAndSendEmail(existingUserEntity);
+                fillOtpFields(entity);
+                return processUserAndSendEmail(entity);
             }
             case DELETED -> throw new ForbiddenOperationException("The user is deleted from the system");
             case ACTIVE -> throw new ForbiddenOperationException("The user is signed up and verified, go to log in");
@@ -91,7 +83,7 @@ public class UserManager {
     }
 
     public UserSignupResponse verifyUserEmail(UserVerifyEmailDTO verifyEmailDto) throws AddressException {
-        //  Validate user input
+
         userInputValidator.validateUserInput(verifyEmailDto);
 
         //  Get the user with specified email
@@ -103,8 +95,6 @@ public class UserManager {
             throw new UserNotFoundException(verifyDtoEmail);
         }
 
-        //  Disable email verifying for users that do not have 'UNVERIFIED' status
-        //  Check whether the user has already been verified or not
         userDataValidator.blockVerifiedUserEmailVerification(entity.getStatus(), entity.getEmail());
 
         //  Check whether the specified password is correct
@@ -112,7 +102,6 @@ public class UserManager {
             throw new AuthenticationException("Invalid password for user " + entity.getEmail());
         }
 
-        //  Validate one time password
         userDataValidator.validateOtp(entity, verifyEmailDto);
 
         //  Save the updated user
@@ -121,7 +110,7 @@ public class UserManager {
     }
 
     public UserLoginResponse login(UserLoginDTO loginDto) throws AddressException {
-        //  Validate user input
+
         userInputValidator.validateUserInput(loginDto);
 
         final String email = loginDto.getEmail();
@@ -134,7 +123,6 @@ public class UserManager {
             throw new UserNotFoundException(email);
         }
 
-        //  Disable logging in for unverified users
         userDataValidator.blockInactiveUserLogin(userResponse.getStatus(), email);
 
         //  Log in and update last log in time
