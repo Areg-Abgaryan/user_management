@@ -4,12 +4,9 @@
 
 package com.areg.project.managers;
 
-import com.areg.project.builders.UserPermissionsWildcardBuilder;
 import com.areg.project.converters.UserConverter;
 import com.areg.project.exceptions.ForbiddenOperationException;
-import com.areg.project.exceptions.OtpTimeoutException;
 import com.areg.project.exceptions.UserNotFoundException;
-import com.areg.project.exceptions.WrongOtpException;
 import com.areg.project.models.UserStatus;
 import com.areg.project.models.dtos.UserDTO;
 import com.areg.project.models.dtos.requests.user.UserLoginDTO;
@@ -22,13 +19,13 @@ import com.areg.project.security.jwt.JwtProvider;
 import com.areg.project.security.jwt.JwtToken;
 import com.areg.project.services.implementations.UserService;
 import com.areg.project.utils.Utils;
+import com.areg.project.validators.UserDataValidator;
 import com.areg.project.validators.UserInputValidator;
 import jakarta.mail.internet.AddressException;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -39,27 +36,25 @@ public class UserManager {
 
     private static String exceptionMessage;
 
-    private final int otpTimeoutSeconds;
-
     private final UserService userService;
-    private final UserInputValidator userInputValidator;
     private final UserConverter userConverter;
+    private final UserInputValidator userInputValidator;
+    private final UserDataValidator userDataValidator;
     private final EncryptionManager encryptionManager;
     private final EmailVerificationManager emailVerificationManager;
-    private final UserPermissionsWildcardBuilder userPermissionsWildcardBuilder;
     private final JwtProvider jwtProvider;
 
     @Autowired
-    public UserManager(@Value("${otp.timeout.seconds}") int otpTimeoutSeconds, UserService userService, UserInputValidator userInputValidator, UserConverter userConverter,
+    public UserManager(UserService userService, UserConverter userConverter,
+                       UserInputValidator userInputValidator, UserDataValidator userDataValidator,
                        EncryptionManager encryptionManager, EmailVerificationManager emailVerificationManager,
-                       UserPermissionsWildcardBuilder userPermissionsWildcardBuilder, JwtProvider jwtProvider) {
-        this.otpTimeoutSeconds = otpTimeoutSeconds;
+                       JwtProvider jwtProvider) {
         this.userService = userService;
-        this.userInputValidator = userInputValidator;
         this.userConverter = userConverter;
+        this.userInputValidator = userInputValidator;
+        this.userDataValidator = userDataValidator;
         this.encryptionManager = encryptionManager;
         this.emailVerificationManager = emailVerificationManager;
-        this.userPermissionsWildcardBuilder = userPermissionsWildcardBuilder;
         this.jwtProvider = jwtProvider;
     }
 
@@ -69,25 +64,25 @@ public class UserManager {
         userInputValidator.validateUserInput(signUpDto);
 
         //  Check whether the user already has tried to sign up
-        UserEntity getOrCreateUserEntity = userService.getUserByEmail(signUpDto.getEmail());
-        final UserEntity entity = userConverter.fromSignUpDtoToEntity(signUpDto);
+        UserEntity existingUserEntity = userService.getUserByEmail(signUpDto.getEmail());
+        final UserEntity newUserEntity = userConverter.fromSignUpDtoToEntity(signUpDto);
 
         //  Create a new user in the system
-        if (getOrCreateUserEntity == null) {
+        if (existingUserEntity == null) {
             //  Convert dto to entity and set fields
-            fillSignUpEntityCryptoFields(entity, signUpDto.getPassword());
+            fillSignUpEntityCryptoFields(newUserEntity, signUpDto.getPassword());
 
             //  Save unverified user
-            getOrCreateUserEntity = userService.createUnverifiedUser(entity);
+            existingUserEntity = userService.createUnverifiedUser(newUserEntity);
 
-            return processUserAndSendEmail(getOrCreateUserEntity);
+            return processUserAndSendEmail(existingUserEntity);
         }
 
-        switch (getOrCreateUserEntity.getStatus()) {
+        switch (existingUserEntity.getStatus()) {
             case UNVERIFIED -> {
                 //  Create a new otp
-                fillOtpFields(getOrCreateUserEntity);
-                return processUserAndSendEmail(getOrCreateUserEntity);
+                fillOtpFields(existingUserEntity);
+                return processUserAndSendEmail(existingUserEntity);
             }
             case DELETED -> throw new ForbiddenOperationException("The user is deleted from the system");
             case ACTIVE -> throw new ForbiddenOperationException("The user is signed up and verified, go to log in");
@@ -99,9 +94,6 @@ public class UserManager {
         //  Validate user input
         userInputValidator.validateUserInput(verifyEmailDto);
 
-        //  Get epoch seconds of the moment
-        final long now = Utils.getEpochSecondsNow();
-
         //  Get the user with specified email
         final String verifyDtoEmail = verifyEmailDto.getEmail();
         final UserEntity entity = userService.getUserByEmail(verifyDtoEmail);
@@ -111,36 +103,21 @@ public class UserManager {
             throw new UserNotFoundException(verifyDtoEmail);
         }
 
+        //  Disable email verifying for users that do not have 'UNVERIFIED' status
         //  Check whether the user has already been verified or not
-        final UserStatus status = entity.getStatus();
-        if (! status.equals(UserStatus.UNVERIFIED)) {
-            switch (status) {
-                case ACTIVE -> exceptionMessage = "The user with email " + verifyDtoEmail + " has already been verified";
-                case DELETED -> exceptionMessage = "The user with email " + verifyDtoEmail + " is deleted";
-            }
-            throw new ForbiddenOperationException(exceptionMessage);
-        }
+        userDataValidator.blockVerifiedUserEmailVerification(entity.getStatus(), entity.getEmail());
 
         //  Check whether the specified password is correct
         if (! entity.getPassword().equals(encryptionManager.encrypt(verifyEmailDto.getPassword(), entity.getSalt()))) {
             throw new AuthenticationException("Invalid password for user " + entity.getEmail());
-        } else {
-            //  Check otp creation time. Timeout if 120 seconds passed
-            if (entity.getOtpCreationTime() + otpTimeoutSeconds < now) {
-                userService.removeOtpData(entity);
-                throw new OtpTimeoutException();
-            }
-
-            //  Check otp
-            if (verifyEmailDto.getOtp() != entity.getOtp()) {
-                throw new WrongOtpException();
-            }
-
-            //  Save the updated user
-            final UserEntity savedEntity = userService.saveVerifiedUser(entity);
-
-            return userConverter.fromEntityToSignUpResponse(savedEntity);
         }
+
+        //  Validate one time password
+        userDataValidator.validateOtp(entity, verifyEmailDto);
+
+        //  Save the updated user
+        final UserEntity savedEntity = userService.saveVerifiedUser(entity);
+        return userConverter.fromEntityToSignUpResponse(savedEntity);
     }
 
     public UserLoginResponse login(UserLoginDTO loginDto) throws AddressException {
@@ -158,14 +135,7 @@ public class UserManager {
         }
 
         //  Disable logging in for unverified users
-        final UserStatus status = userResponse.getStatus();
-        if (! status.equals(UserStatus.ACTIVE)) {
-            switch (status) {
-                case UNVERIFIED -> exceptionMessage = "User with email '" + email + "' is not verified";
-                case DELETED -> exceptionMessage = "User with email '" + email + "' is not active";
-            }
-            throw new ForbiddenOperationException(exceptionMessage);
-        }
+        userDataValidator.blockInactiveUserLogin(userResponse.getStatus(), email);
 
         //  Log in and update last log in time
         final var token = new UsernamePasswordToken(email, loginDto.getPassword());
@@ -174,10 +144,8 @@ public class UserManager {
         //  Update user's last log in time
         updateLastLoginTime(email, Utils.getCurrentDateAndTime());
 
-        // Generate JWT token with user permissions
-        final Set<String> permissionsSet = userPermissionsWildcardBuilder.buildPermissionsWildcards(userResponse.getId());
-        final String jwtTokenString = jwtProvider.createJwtToken(email, permissionsSet);
-        final JwtToken jwtToken = JwtToken.create(jwtTokenString);
+        // Generate JWT token with user permissions wildcard
+        final JwtToken jwtToken = jwtProvider.createJwtToken(userResponse.getId(), email);
 
         return new UserLoginResponse(userResponse.getFirstName(), userResponse.getLastName(), userResponse.getStatus(), jwtToken);
     }

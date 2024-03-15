@@ -4,6 +4,7 @@
 
 package com.areg.project.security.jwt;
 
+import com.areg.project.builders.PermissionsWildcardBuilder;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
@@ -29,6 +30,7 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 @Component
 public class JwtProvider {
@@ -36,25 +38,29 @@ public class JwtProvider {
     private final String secret;
     private final long validTimeMillis;
     private final JwtUserDetailsService jwtUserDetailsService;
+    private final PermissionsWildcardBuilder permissionsWildcardBuilder;
 
     @Autowired
     public JwtProvider(@Value("${jwt.secret}") String secret, @Value("${jwt.expired}") long validTimeMillis,
-                       JwtUserDetailsService jwtUserDetailsService) {
+                       JwtUserDetailsService jwtUserDetailsService, PermissionsWildcardBuilder permissionsWildcardBuilder) {
         this.secret = Base64.getEncoder().encodeToString(secret.getBytes());
         this.validTimeMillis = validTimeMillis;
         this.jwtUserDetailsService = jwtUserDetailsService;
+        this.permissionsWildcardBuilder = permissionsWildcardBuilder;
     }
 
 
     // Generate a new JWT
-    public String createJwtToken(String email, Set<String> setOfPermissions) {
-        return Jwts.builder()
+    public JwtToken createJwtToken(UUID userResponseId, String email) {
+        final Set<String> permissionsSet = permissionsWildcardBuilder.buildPermissionsWildcards(userResponseId);
+        final String token = Jwts.builder()
                 .subject(email)
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + validTimeMillis))
                 .signWith(getSigningKey())
-                .claim("permissions", setOfPermissions)
+                .claim("permissions", permissionsSet)
                 .compact();
+        return JwtToken.create(token);
     }
 
     //  Is used from controllers for checking whether the user has permission for operation or not

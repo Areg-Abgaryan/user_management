@@ -27,14 +27,14 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Component
-public class UserPermissionsWildcardBuilder {
+public class PermissionsWildcardBuilder {
 
     private final UserService userService;
 
     private final AccessControlService accessControlService;
 
     @Autowired
-    public UserPermissionsWildcardBuilder(UserService userService, AccessControlService accessControlService) {
+    public PermissionsWildcardBuilder(UserService userService, AccessControlService accessControlService) {
         this.userService = userService;
         this.accessControlService = accessControlService;
     }
