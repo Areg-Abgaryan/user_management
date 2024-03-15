@@ -8,7 +8,6 @@ import com.areg.project.models.entities.UserEntity;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
 
 public interface IUserService {
 
@@ -18,13 +17,14 @@ public interface IUserService {
 
     void removeOtpData(UserEntity userEntity);
 
-    UserEntity getUserById(UUID id);
+    void updateLastLoginTime(String email, LocalDateTime lastLoginDate);
+
+    void updateUser(UserEntity entity);
+
+
+    UserEntity getActiveUserByEmail(String email);
 
     UserEntity getUserByEmail(String email);
 
-    void updateLastLoginTime(String email, LocalDateTime lastLoginDate);
-
     List<UserEntity> getAllActiveUsers();
-
-    void updateUser(UserEntity entity);
 }

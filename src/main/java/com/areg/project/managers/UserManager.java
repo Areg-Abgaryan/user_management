@@ -115,10 +115,8 @@ public class UserManager {
 
         final String email = loginDto.getEmail();
 
-        //  FIXME !! I don't think this is a good way. Have 2 implementations of UserService, for active users and for all ones ?
-
         //  Check whether the user exists in the system
-        final UserSignupResponse userResponse = getUserByEmail(email);
+        final UserSignupResponse userResponse = getActiveUserByEmail(email);
         if (userResponse == null) {
             throw new UserNotFoundException(email);
         }
@@ -133,15 +131,9 @@ public class UserManager {
         updateLastLoginTime(email, Utils.getCurrentDateAndTime());
 
         // Generate JWT token with user permissions wildcard
-        final JwtToken jwtToken = jwtProvider.createJwtToken(userResponse.getId(), email);
+        final JwtToken jwtToken = jwtProvider.createJwtToken(email);
 
         return new UserLoginResponse(userResponse.getFirstName(), userResponse.getLastName(), userResponse.getStatus(), jwtToken);
-    }
-
-    //  FIXME !! Return only ACTIVE users to api-s
-    public UserSignupResponse getUserByEmail(String email) {
-        final UserEntity entity = userService.getUserByEmail(email);
-        return userConverter.fromEntityToSignUpResponse(entity);
     }
 
     public void updateLastLoginTime(String email, LocalDateTime loginDate) {
@@ -152,6 +144,11 @@ public class UserManager {
         return userConverter.fromEntityToDto(userService.getAllActiveUsers());
     }
 
+
+    private UserSignupResponse getActiveUserByEmail(String email) {
+        final UserEntity entity = userService.getActiveUserByEmail(email);
+        return userConverter.fromEntityToSignUpResponse(entity);
+    }
 
     private UserSignupResponse processUserAndSendEmail(UserEntity userEntity) {
         //  Convert to response type

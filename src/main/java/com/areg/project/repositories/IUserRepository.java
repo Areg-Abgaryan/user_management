@@ -17,12 +17,15 @@ import java.util.UUID;
 @Repository
 public interface IUserRepository extends JpaRepository<UserEntity, Long> {
 
+    void deleteAllByStatus(UserStatus status);
+
     Optional<UserEntity> findByExternalId(UUID userId);
 
     Optional<UserEntity> findByEmail(String email);
 
+    @Query(nativeQuery = true, value = "SELECT * FROM \"user\" WHERE email = :email AND user_status = 'ACTIVE';")
+    Optional<UserEntity> findActiveUserByEmail(String email);
+
     @Query(nativeQuery = true, value = "SELECT * FROM \"user\" WHERE user_status = 'ACTIVE'")
     List<UserEntity> getAllActiveUsers();
-
-    void deleteAllByStatus(UserStatus status);
 }

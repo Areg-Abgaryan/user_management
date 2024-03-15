@@ -39,7 +39,7 @@ public class ShiroRealm extends AuthorizingRealm {
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
         final var upToken = (UsernamePasswordToken) token;
         final var password = new String((char[]) token.getCredentials());
-        final UserEntity user = userService.getUserByEmail(upToken.getUsername());
+        final UserEntity user = userService.getActiveUserByEmail(upToken.getUsername());
         if (user == null) {
             throw new UnknownAccountException("Invalid user");
         }

@@ -56,18 +56,8 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public UserEntity getUserById(UUID id) throws UserNotFoundException {
-        return userRepository.findByExternalId(id).orElseThrow(() -> new UserNotFoundException(id));
-    }
-
-    @Override
-    public UserEntity getUserByEmail(String email) {
-        return userRepository.findByEmail(email).orElse(null);
-    }
-
-    @Override
     public void updateLastLoginTime(String email, LocalDateTime lastLoginDate) {
-        final Optional<UserEntity> entity = userRepository.findByEmail(email);
+        final Optional<UserEntity> entity = userRepository.findActiveUserByEmail(email);
         if (entity.isEmpty()) {
             return;
         }
@@ -76,12 +66,23 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public List<UserEntity> getAllActiveUsers() {
-        return userRepository.getAllActiveUsers();
+    public void updateUser(UserEntity entity) {
+        userRepository.saveAndFlush(entity);
+    }
+
+
+    @Override
+    public UserEntity getActiveUserByEmail(String email) {
+        return userRepository.findActiveUserByEmail(email).orElse(null);
     }
 
     @Override
-    public void updateUser(UserEntity entity) {
-        userRepository.saveAndFlush(entity);
+    public UserEntity getUserByEmail(String email) {
+        return userRepository.findByEmail(email).orElse(null);
+    }
+
+    @Override
+    public List<UserEntity> getAllActiveUsers() {
+        return userRepository.getAllActiveUsers();
     }
 }

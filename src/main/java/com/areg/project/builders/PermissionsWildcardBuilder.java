@@ -39,9 +39,9 @@ public class PermissionsWildcardBuilder {
         this.accessControlService = accessControlService;
     }
 
-    public Set<String> buildPermissionsWildcards(UUID userId) {
+    public Set<String> buildPermissionsWildcards(String email) {
 
-        final UserEntity userById = userService.getUserById(userId);
+        final UserEntity userById = userService.getActiveUserByEmail(email);
         final UserGroupEntity userGroup = userById.getUserGroup();
         if (userGroup == null) {
             return Collections.emptySet();

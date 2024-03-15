@@ -27,7 +27,6 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 @Component
 public class JwtProvider {
@@ -46,8 +45,8 @@ public class JwtProvider {
 
 
     // Generate a new JWT
-    public JwtToken createJwtToken(UUID userResponseId, String email) {
-        final Set<String> permissionsSet = permissionsWildcardBuilder.buildPermissionsWildcards(userResponseId);
+    public JwtToken createJwtToken(String email) {
+        final Set<String> permissionsSet = permissionsWildcardBuilder.buildPermissionsWildcards(email);
         final String token = Jwts.builder()
                 .subject(email)
                 .issuedAt(new Date())
