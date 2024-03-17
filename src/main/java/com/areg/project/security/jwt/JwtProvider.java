@@ -43,6 +43,7 @@ public class JwtProvider {
         this.permissionsWildcardBuilder = permissionsWildcardBuilder;
     }
 
+    //  FIXME !! Get rid of deprecated api-s
 
     // Generate a new JWT
     public JwtToken createJwtToken(String email) {
@@ -58,24 +59,25 @@ public class JwtProvider {
     }
 
     //  Is used from controllers for checking whether the user has permission for operation or not
+    //  FIXME !! Test this
     public void checkPermissions(String jwtToken, String domain, String operation) {
-        final List<String> permissionsFromToken = getPermissionsFromToken(jwtToken);
-        if (permissionsFromToken.stream().noneMatch(perm -> perm.contains(domain) && !perm.contains(operation))) {
+        final List<String> permissions = getPermissionsFromToken(jwtToken);
+        if (permissions.stream().noneMatch(perm -> perm.contains(domain) && !perm.contains(operation))) {
             throw new AuthorizationException("You don't have permissions for this operation");
         }
     }
 
     // Validate the JWT token
     public boolean isTokenValid(String token) {
-        try {
-            if (StringUtils.isBlank(token)) {
-                throw new JwtException("Token is invalid !");
-            }
-            final Jws<Claims> claims = Jwts.parser().decryptWith(getSigningKey()).build().parseSignedClaims(token);
-            return claims.getPayload().getExpiration().after(new Date());
-        } catch (JwtException | IllegalArgumentException e) {
-            return false;
+        if (StringUtils.isBlank(token)) {
+            throw new JwtException("Jwt token cannot be blank");
         }
+
+        final Jws<Claims> claims = Jwts.parser().setSigningKey(getSigningKey()).build().parseSignedClaims(token);
+
+        // Verify nullability and expiration
+        return claims != null && claims.getPayload() != null && claims.getPayload().getExpiration() != null &&
+                !claims.getPayload().getExpiration().before(new Date());
     }
 
     public String resolveToken(HttpServletRequest request) {
@@ -86,8 +88,7 @@ public class JwtProvider {
     private List<String> getPermissionsFromToken(String token) {
         try {
             final String permissionsJson = Jwts.parser()
-                    .decryptWith(getSigningKey()).build()
-                    .parseSignedClaims(token)
+                    .setSigningKey(getSigningKey()).build().parseSignedClaims(token)
                     .getPayload().get("permissions", String.class);
 
             if (StringUtils.isBlank(permissionsJson)) {
@@ -99,12 +100,6 @@ public class JwtProvider {
         } catch (IOException e) {
             throw new AuthorizationException("Error while parsing permissions from the token", e);
         }
-    }
-
-    private String getEmailFromToken(String token) {
-        return Jwts.parser()
-                .decryptWith(getSigningKey()).build()
-                .parseSignedClaims(token).getPayload().getSubject();
     }
 
     private SecretKey getSigningKey() {

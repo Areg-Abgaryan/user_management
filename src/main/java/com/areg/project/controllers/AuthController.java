@@ -9,19 +9,25 @@ import com.areg.project.exceptions.ForbiddenOperationException;
 import com.areg.project.exceptions.OtpTimeoutException;
 import com.areg.project.exceptions.UserNotFoundException;
 import com.areg.project.exceptions.WrongOtpException;
-import com.areg.project.managers.UserManager;
+import com.areg.project.managers.AuthManager;
 import com.areg.project.models.dtos.requests.user.UserLoginDTO;
 import com.areg.project.models.dtos.requests.user.UserSignUpDTO;
 import com.areg.project.models.dtos.requests.user.UserVerifyEmailDTO;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.security.SignatureException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.mail.internet.AddressException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -34,11 +40,11 @@ import static com.areg.project.controllers.EndpointsConstants.VERIFY_EMAIL;
 @Tag(name = "Auth Controller")
 public class AuthController {
 
-    private final UserManager userManager;
+    private final AuthManager authManager;
 
     @Autowired
-    public AuthController(UserManager userManager) {
-        this.userManager = userManager;
+    public AuthController(AuthManager authManager) {
+        this.authManager = authManager;
     }
 
 
@@ -46,7 +52,7 @@ public class AuthController {
     @PostMapping(SIGNUP)
     public ResponseEntity<?> signUp(@RequestBody UserSignUpDTO userSignUpDto) {
         try {
-            return ResponseEntity.ok(userManager.createUnverifiedUser(userSignUpDto));
+            return ResponseEntity.ok(authManager.createUnverifiedUser(userSignUpDto));
         } catch (ForbiddenOperationException foe) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(foe.getMessage());
         } catch (IllegalArgumentException | AddressException ee) {
@@ -62,7 +68,7 @@ public class AuthController {
     @PostMapping(SIGNUP + VERIFY_EMAIL)
     public ResponseEntity<?> verifyEmail(@RequestBody UserVerifyEmailDTO verifyEmailDto) {
         try {
-            return ResponseEntity.ok(userManager.verifyUserEmail(verifyEmailDto));
+            return ResponseEntity.ok(authManager.verifyUserEmail(verifyEmailDto));
         }  catch (ForbiddenOperationException foe) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(foe.getMessage());
         } catch (UserNotFoundException une) {
@@ -82,7 +88,7 @@ public class AuthController {
     @PostMapping(EndpointsConstants.LOGIN)
     public ResponseEntity<?> login(@RequestBody UserLoginDTO loginDto) {
         try {
-            return ResponseEntity.ok(userManager.login(loginDto));
+            return ResponseEntity.ok(authManager.login(loginDto));
         } catch (BlankInputDataException | IllegalArgumentException ide) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ide.getMessage());
         } catch (UserNotFoundException ue) {
@@ -94,5 +100,22 @@ public class AuthController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal server error");
         }
+    }
+
+    @PostMapping(EndpointsConstants.LOGOUT)
+    @Operation(summary = "User log out", description = "Log out the user from the system")
+    public ResponseEntity<?> logout(@RequestHeader(name = HttpHeaders.AUTHORIZATION) String jwtToken) {
+        try {
+            authManager.logout(jwtToken);
+        } catch (ExpiredJwtException eje) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Expired jwt token provided");
+        } catch (MalformedJwtException | SignatureException je) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid jwt provided");
+        } catch (JwtException | IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal server error");
+        }
+        return ResponseEntity.ok().build();
     }
 }
