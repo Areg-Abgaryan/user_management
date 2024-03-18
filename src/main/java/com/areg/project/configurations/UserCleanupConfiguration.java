@@ -4,7 +4,7 @@
 
 package com.areg.project.configurations;
 
-import com.areg.project.models.UserStatus;
+import com.areg.project.models.enums.UserStatus;
 import com.areg.project.repositories.IUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;

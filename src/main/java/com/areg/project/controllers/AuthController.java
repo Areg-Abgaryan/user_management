@@ -50,12 +50,12 @@ public class AuthController {
 
     @Operation(summary = "User Sign up", description = "Registration of a new user in the system with 'UNVERIFIED' status")
     @PostMapping(SIGNUP)
-    public ResponseEntity<?> signUp(@RequestBody UserSignUpDTO userSignUpDto) {
+    public ResponseEntity<?> signup(@RequestBody UserSignUpDTO userSignUpDto) {
         try {
             return ResponseEntity.ok(authManager.createUnverifiedUser(userSignUpDto));
         } catch (ForbiddenOperationException foe) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(foe.getMessage());
-        } catch (IllegalArgumentException | AddressException ee) {
+        } catch (BlankInputDataException | IllegalArgumentException | AddressException ee) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ee.getMessage());
         } catch (DataIntegrityViolationException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("User with such email already exists");

@@ -10,13 +10,12 @@ import jakarta.persistence.Column;
 import jakarta.persistence.OneToMany;
 
 import lombok.Getter;
-import lombok.Setter;
 
 import java.util.Set;
 import java.util.UUID;
 
 @Entity
-@Getter @Setter
+@Getter
 @Table(name = "user_group", schema = "public")
 public class UserGroupEntity extends BaseEntity {
 

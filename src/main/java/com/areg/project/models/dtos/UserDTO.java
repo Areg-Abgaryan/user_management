@@ -4,7 +4,7 @@
 
 package com.areg.project.models.dtos;
 
-import com.areg.project.models.UserStatus;
+import com.areg.project.models.enums.UserStatus;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Email;
@@ -15,8 +15,8 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
 @Getter @Setter
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class UserDTO {
 
     @JsonProperty("id")

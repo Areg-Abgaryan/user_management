@@ -29,8 +29,6 @@ public class RoleConverter {
             return null;
         }
 
-        final var roleDto = new RoleDTO();
-        roleDto.setName(entity.getName());
-        return roleDto;
+        return new RoleDTO(entity.getName());
     }
 }

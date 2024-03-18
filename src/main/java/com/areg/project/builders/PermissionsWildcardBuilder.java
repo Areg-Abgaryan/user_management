@@ -23,7 +23,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Component
@@ -38,6 +37,7 @@ public class PermissionsWildcardBuilder {
         this.userService = userService;
         this.accessControlService = accessControlService;
     }
+
 
     public Set<String> buildPermissionsWildcards(String email) {
 

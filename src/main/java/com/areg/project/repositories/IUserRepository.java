@@ -4,7 +4,7 @@
 
 package com.areg.project.repositories;
 
-import com.areg.project.models.UserStatus;
+import com.areg.project.models.enums.UserStatus;
 import com.areg.project.models.entities.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -12,14 +12,11 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Repository
 public interface IUserRepository extends JpaRepository<UserEntity, Long> {
 
     void deleteAllByStatus(UserStatus status);
-
-    Optional<UserEntity> findByExternalId(UUID userId);
 
     Optional<UserEntity> findByEmail(String email);
 

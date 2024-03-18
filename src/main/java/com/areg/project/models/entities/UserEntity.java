@@ -4,9 +4,8 @@
 
 package com.areg.project.models.entities;
 
-import com.areg.project.models.UserStatus;
+import com.areg.project.models.enums.UserStatus;
 import org.springframework.data.annotation.CreatedDate;
-import lombok.Setter;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -17,6 +16,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Column;
 
 import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.UUID;

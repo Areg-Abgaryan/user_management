@@ -4,8 +4,7 @@
 
 package com.areg.project.services.implementations;
 
-import com.areg.project.exceptions.UserNotFoundException;
-import com.areg.project.models.UserStatus;
+import com.areg.project.models.enums.UserStatus;
 import com.areg.project.models.entities.UserEntity;
 import com.areg.project.repositories.IUserRepository;
 import com.areg.project.services.interfaces.IUserService;
@@ -15,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
