@@ -11,6 +11,17 @@ repositories {
     mavenCentral()
 }
 
+springBoot {
+    mainClass = 'com.areg.project.UserManagementApplication'
+}
+
+// Define a custom output directory for the JAR file
+tasks.build.dependsOn bootJar
+bootJar {
+    archiveFileName = "user-management-1.0-SNAPSHOT.jar"
+    destinationDirectory = file("./build/libs")
+}
+
 dependencies {
 
     //  Spring Boot
