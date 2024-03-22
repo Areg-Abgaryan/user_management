@@ -33,10 +33,10 @@ public class UserService implements IUserService {
     @Transactional
     public UserEntity createUnverifiedUser(UserEntity entity) {
         entity.setStatus(UserStatus.UNVERIFIED);
-        entity.setExternalId(UUID.randomUUID());
-        entity.setCreated(Utils.getCurrentDateAndTime());
-        entity.setUpdated(Utils.getCurrentDateAndTime());
-        return userRepository.save(entity);
+        entity.setUuid(UUID.randomUUID());
+        entity.setCreationDate(Utils.getCurrentDateAndTime());
+        entity.setUpdateDate(Utils.getCurrentDateAndTime());
+        return userRepository.saveAndFlush(entity);
     }
 
     @Override
@@ -47,10 +47,8 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public void removeOtpData(UserEntity entity) {
-        entity.setOtp(0);
-        entity.setOtpCreationTime(0);
-        userRepository.save(entity);
+    public void updateUser(UserEntity entity) {
+        userRepository.saveAndFlush(entity);
     }
 
     @Override
@@ -64,14 +62,13 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public void updateUser(UserEntity entity) {
-        userRepository.saveAndFlush(entity);
-    }
-
-
-    @Override
     public UserEntity getActiveUserByEmail(String email) {
         return userRepository.findActiveUserByEmail(email).orElse(null);
+    }
+
+    @Override
+    public UserEntity getActiveUserByUuid(UUID uuid) {
+        return userRepository.findActiveUserByUuid(uuid).orElse(null);
     }
 
     @Override
@@ -82,5 +79,12 @@ public class UserService implements IUserService {
     @Override
     public List<UserEntity> getAllActiveUsers() {
         return userRepository.getAllActiveUsers();
+    }
+
+    @Override
+    public void removeOtpData(UserEntity entity) {
+        entity.setOtp(0);
+        entity.setOtpCreationTime(0);
+        userRepository.saveAndFlush(entity);
     }
 }

@@ -39,7 +39,8 @@ public class PermissionsWildcardBuilder {
     }
 
 
-    public Set<String> buildPermissionsWildcards(String email) {
+    //  Build user permission wildcard by user email
+    public Set<String> build(String email) {
 
         final UserEntity userById = userService.getActiveUserByEmail(email);
         final UserGroupEntity userGroup = userById.getUserGroup();
@@ -53,10 +54,7 @@ public class PermissionsWildcardBuilder {
 
         for (var objectGroup : objectGroupSet) {
             if (! objectGroup.getObjects().isEmpty()) {
-                final DomainEntity currentDomain = objectGroup.getObjects().stream()
-                        .iterator()
-                        .next()
-                        .getDomain();
+                final DomainEntity currentDomain = objectGroup.getObjects().stream().iterator().next().getDomain();
                 wildcards.add(buildPermissionsWildcard(
                         currentDomain, objectGroup.getObjects(), accessControl.getRole().getPermissions()));
             }
@@ -79,7 +77,7 @@ public class PermissionsWildcardBuilder {
         }
 
         final String permissionsString = result.stream().map(permission -> permission.getName() + ",").collect(Collectors.joining());
-        final String objectsString = objects.stream().map(objectEntity -> objectEntity.getExternalId().toString() + ",").collect(Collectors.joining());
+        final String objectsString = objects.stream().map(objectEntity -> objectEntity.getUuid().toString() + ",").collect(Collectors.joining());
 
         return domain.getCode() + ":" + StringUtils.chop(permissionsString) + ":" + StringUtils.chop(objectsString);
     }

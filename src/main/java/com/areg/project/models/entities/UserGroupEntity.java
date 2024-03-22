@@ -12,15 +12,11 @@ import jakarta.persistence.OneToMany;
 import lombok.Getter;
 
 import java.util.Set;
-import java.util.UUID;
 
 @Entity
 @Getter
 @Table(name = "user_group", schema = "public")
-public class UserGroupEntity extends BaseEntity {
-
-    @Column(name = "external_id", unique = true)
-    private UUID externalId;
+public class UserGroupEntity extends CreateUpdateEntity {
 
     @Column(name = "name", unique = true)
     private String name;

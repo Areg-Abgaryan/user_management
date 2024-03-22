@@ -8,6 +8,7 @@ import com.areg.project.models.entities.UserEntity;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 public interface IUserService {
 
@@ -23,6 +24,8 @@ public interface IUserService {
 
 
     UserEntity getActiveUserByEmail(String email);
+
+    UserEntity getActiveUserByUuid(UUID uuid);
 
     UserEntity getUserByEmail(String email);
 

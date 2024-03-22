@@ -16,17 +16,12 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
 
-import java.util.UUID;
-
 @Entity
 @Table(name = "object")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "entity_type", discriminatorType = DiscriminatorType.STRING)
 @Getter
 public class ObjectEntity extends CreateUpdateEntity {
-
-    @Column(name = "external_id")
-    private UUID externalId;
 
     @Column(name = "name", unique = true)
     private String name;

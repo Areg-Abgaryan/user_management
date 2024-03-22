@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public interface IUserRepository extends JpaRepository<UserEntity, Long> {
@@ -22,6 +23,9 @@ public interface IUserRepository extends JpaRepository<UserEntity, Long> {
 
     @Query(nativeQuery = true, value = "SELECT * FROM \"user\" WHERE email = :email AND user_status = 'ACTIVE';")
     Optional<UserEntity> findActiveUserByEmail(String email);
+
+    @Query(nativeQuery = true, value = "SELECT * FROM \"user\" WHERE uuid = :uuid AND user_status = 'ACTIVE';")
+    Optional<UserEntity> findActiveUserByUuid(UUID uuid);
 
     @Query(nativeQuery = true, value = "SELECT * FROM \"user\" WHERE user_status = 'ACTIVE'")
     List<UserEntity> getAllActiveUsers();

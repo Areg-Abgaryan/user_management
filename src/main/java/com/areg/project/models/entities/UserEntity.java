@@ -19,15 +19,11 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Entity
 @Getter @Setter
 @Table(name = "user", schema = "public")
 public class UserEntity extends CreateUpdateEntity {
-
-    @Column(name = "external_id", unique = true)
-    private UUID externalId;
 
     @Column(name = "email", unique = true)
     private String email;

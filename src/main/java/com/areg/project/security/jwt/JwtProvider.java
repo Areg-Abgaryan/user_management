@@ -45,7 +45,7 @@ public class JwtProvider {
 
     // Generate a new JWT
     public JwtToken createJwtToken(String email) {
-        final Set<String> permissionsSet = permissionsWildcardBuilder.buildPermissionsWildcards(email);
+        final Set<String> permissionsSet = permissionsWildcardBuilder.build(email);
         final String token = Jwts.builder()
                 .subject(email)
                 .issuedAt(new Date())
@@ -67,13 +67,14 @@ public class JwtProvider {
 
     // Validate the JWT token
     public boolean isTokenValid(String token) {
+        //  Check whether the token is empty
         if (StringUtils.isBlank(token)) {
             throw new JwtException("Jwt token cannot be blank");
         }
 
         final Jws<Claims> claims = Jwts.parser().setSigningKey(getSigningKey()).build().parseSignedClaims(token);
 
-        // Verify nullability and expiration
+        // Verify nullability and expiration time
         return claims != null && claims.getPayload() != null && claims.getPayload().getExpiration() != null &&
                 !claims.getPayload().getExpiration().before(new Date());
     }

@@ -24,7 +24,7 @@ public class UserConverter {
         }
 
         final var signupResponse = new UserSignupResponse();
-        signupResponse.setId(entity.getExternalId());
+        signupResponse.setId(entity.getUuid());
         signupResponse.setEmail(entity.getEmail());
         signupResponse.setFirstName(entity.getFirstName());
         signupResponse.setLastName(entity.getLastName());
@@ -58,13 +58,13 @@ public class UserConverter {
         }
 
         final var userDto = new UserDTO();
-        userDto.setId(entity.getExternalId());
+        userDto.setId(entity.getUuid());
         userDto.setEmail(entity.getEmail());
         userDto.setFirstName(entity.getFirstName());
         userDto.setLastName(entity.getLastName());
         userDto.setStatus(entity.getStatus());
-        userDto.setCreated(entity.getCreated());
-        userDto.setUpdated(entity.getUpdated());
+        userDto.setCreated(entity.getCreationDate());
+        userDto.setUpdated(entity.getUpdateDate());
         userDto.setLastLoginTime(entity.getLastLoginTime());
         return userDto;
     }

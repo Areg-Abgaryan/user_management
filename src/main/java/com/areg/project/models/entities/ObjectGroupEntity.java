@@ -14,8 +14,8 @@ import java.util.UUID;
 @Table(name = "object_group")
 public class ObjectGroupEntity extends BaseEntity {
 
-    @Column(name = "external_id")
-    private UUID externalId;
+    @Column(name = "uuid")
+    private UUID uuid;
 
     @Column(name = "name", unique = true)
     private String name;
