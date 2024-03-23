@@ -6,9 +6,9 @@ package com.areg.project.validators;
 
 import com.areg.project.exceptions.BlankInputDataException;
 import com.areg.project.managers.EmailVerificationManager;
-import com.areg.project.models.dtos.requests.user.UserLoginDTO;
-import com.areg.project.models.dtos.requests.user.UserSignUpDTO;
-import com.areg.project.models.dtos.requests.user.UserVerifyEmailDTO;
+import com.areg.project.models.dtos.requests.user.UserLoginRequest;
+import com.areg.project.models.dtos.requests.user.UserSignUpRequest;
+import com.areg.project.models.dtos.requests.user.UserVerifyEmailRequest;
 import jakarta.mail.internet.AddressException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +27,7 @@ public class UserInputValidator {
     }
 
     //  Check whether the user input is valid or not
-    public void validateUserInput(UserSignUpDTO signUpDto) throws AddressException {
+    public void validateUserInput(UserSignUpRequest signUpDto) throws AddressException {
         if (StringUtils.isAnyBlank(signUpDto.getEmail(), signUpDto.getPassword(), signUpDto.getFirstName(),
                 signUpDto.getLastName())) {
             throw new BlankInputDataException();
@@ -38,7 +38,7 @@ public class UserInputValidator {
         inputPatternValidator.validateLastName(signUpDto.getLastName());
     }
 
-    public void validateUserInput(UserVerifyEmailDTO verifyEmailDto) throws AddressException {
+    public void validateUserInput(UserVerifyEmailRequest verifyEmailDto) throws AddressException {
         if (StringUtils.isAnyBlank(verifyEmailDto.getEmail(), verifyEmailDto.getPassword())) {
             throw new BlankInputDataException();
         }
@@ -46,7 +46,7 @@ public class UserInputValidator {
         inputPatternValidator.validatePassword(verifyEmailDto.getPassword());
     }
 
-    public void validateUserInput(UserLoginDTO loginDto) throws AddressException {
+    public void validateUserInput(UserLoginRequest loginDto) throws AddressException {
         if (StringUtils.isAnyBlank(loginDto.getEmail(), loginDto.getPassword())) {
             throw new BlankInputDataException();
         }

@@ -14,12 +14,12 @@ import lombok.Getter;
 
 import java.util.Set;
 
-@Entity
 @Getter
+@Entity(name = "role")
 @Table(name = "role")
 public class RoleEntity extends BaseEntity {
 
-    @Column(name = "name")
+    @Column(name = "name", unique = true, nullable = false)
     private String name;
 
     @ManyToMany

@@ -14,8 +14,8 @@ import lombok.Getter;
 
 import java.util.Set;
 
-@Entity
 @Getter
+@Entity(name = "access_control")
 @Table(name = "access_control")
 public class AccessControlEntity extends BaseEntity {
 

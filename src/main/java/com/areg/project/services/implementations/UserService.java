@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -34,8 +33,8 @@ public class UserService implements IUserService {
     public UserEntity createUnverifiedUser(UserEntity entity) {
         entity.setStatus(UserStatus.UNVERIFIED);
         entity.setUuid(UUID.randomUUID());
-        entity.setCreationDate(Utils.getCurrentDateAndTime());
-        entity.setUpdateDate(Utils.getCurrentDateAndTime());
+        entity.setCreatedAt(Utils.getEpochSecondsNow());
+        entity.setUpdatedAt(Utils.getEpochSecondsNow());
         return userRepository.saveAndFlush(entity);
     }
 
@@ -52,12 +51,12 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public void updateLastLoginTime(String email, LocalDateTime lastLoginDate) {
+    public void updateLastLoginDate(String email, long loginTime) {
         final Optional<UserEntity> entity = userRepository.findActiveUserByEmail(email);
         if (entity.isEmpty()) {
             return;
         }
-        entity.get().setLastLoginTime(lastLoginDate);
+        entity.get().setLastLoginAt(loginTime);
         userRepository.saveAndFlush(entity.get());
     }
 

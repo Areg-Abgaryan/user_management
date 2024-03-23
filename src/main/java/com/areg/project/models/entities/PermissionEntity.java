@@ -15,12 +15,12 @@ import lombok.Getter;
 import java.util.Objects;
 import java.util.Set;
 
-@Entity
 @Getter
+@Entity(name = "permission")
 @Table(name = "permission")
 public class PermissionEntity extends BaseEntity {
 
-    @Column(name = "name")
+    @Column(name = "name", nullable = false)
     private String name;
 
     @ManyToOne

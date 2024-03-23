@@ -12,7 +12,6 @@ import com.areg.project.services.implementations.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.Set;
 
 @Service
@@ -32,8 +31,8 @@ public class UserManager {
         return userConverter.fromEntityToDto(userService.getAllActiveUsers());
     }
 
-    public void updateLastLoginTime(String email, LocalDateTime loginDate) {
-        userService.updateLastLoginTime(email, loginDate);
+    public void updateLastLoginDate(String email, long loginDate) {
+        userService.updateLastLoginDate(email, loginDate);
     }
 
     public UserSignupResponse getActiveUserByEmail(String email) {

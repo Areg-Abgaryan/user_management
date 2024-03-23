@@ -76,7 +76,7 @@ public class JwtProvider {
 
         // Verify nullability and expiration time
         return claims != null && claims.getPayload() != null && claims.getPayload().getExpiration() != null &&
-                !claims.getPayload().getExpiration().before(new Date());
+                claims.getPayload().getExpiration().after(new Date());
     }
 
 

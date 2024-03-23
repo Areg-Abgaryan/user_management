@@ -8,7 +8,7 @@ import com.areg.project.exceptions.ForbiddenOperationException;
 import com.areg.project.exceptions.OtpTimeoutException;
 import com.areg.project.exceptions.WrongOtpException;
 import com.areg.project.models.enums.UserStatus;
-import com.areg.project.models.dtos.requests.user.UserVerifyEmailDTO;
+import com.areg.project.models.dtos.requests.user.UserVerifyEmailRequest;
 import com.areg.project.models.entities.UserEntity;
 import com.areg.project.services.implementations.UserService;
 import com.areg.project.utils.Utils;
@@ -53,7 +53,7 @@ public class UserDataValidator {
         }
     }
 
-    public void validateOtp(UserEntity entity, UserVerifyEmailDTO verifyEmailDto) {
+    public void validateOtp(UserEntity entity, UserVerifyEmailRequest verifyEmailDto) {
         //  Get epoch seconds of the moment
         final long now = Utils.getEpochSecondsNow();
 

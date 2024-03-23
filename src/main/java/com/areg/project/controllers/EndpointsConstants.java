@@ -20,6 +20,7 @@ public class EndpointsConstants {
     public static final String VERIFY_EMAIL = "/verify_email";
     public static final String LOGIN = "/login";
     public static final String LOGOUT = "/logout";
+    public static final String REFRESH_TOKEN = "/refresh_token";
 
     public static final String AUTH_SIGNUP_VERIFY_EMAIL = AUTH + SIGNUP + VERIFY_EMAIL;
 }

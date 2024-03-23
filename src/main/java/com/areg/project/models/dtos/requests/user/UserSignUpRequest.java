@@ -10,9 +10,9 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
 @Getter
-public class UserSignUpDTO {
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class UserSignUpRequest {
 
     @JsonProperty("email")
     @NotBlank @Email private String email;

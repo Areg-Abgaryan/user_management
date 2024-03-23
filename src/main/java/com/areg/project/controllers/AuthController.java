@@ -10,9 +10,10 @@ import com.areg.project.exceptions.OtpTimeoutException;
 import com.areg.project.exceptions.UserNotFoundException;
 import com.areg.project.exceptions.WrongOtpException;
 import com.areg.project.managers.AuthManager;
-import com.areg.project.models.dtos.requests.user.UserLoginDTO;
-import com.areg.project.models.dtos.requests.user.UserSignUpDTO;
-import com.areg.project.models.dtos.requests.user.UserVerifyEmailDTO;
+import com.areg.project.models.dtos.requests.user.UserLoginRequest;
+import com.areg.project.models.dtos.requests.user.UserRefreshTokenRequest;
+import com.areg.project.models.dtos.requests.user.UserSignUpRequest;
+import com.areg.project.models.dtos.requests.user.UserVerifyEmailRequest;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.MalformedJwtException;
@@ -50,9 +51,9 @@ public class AuthController {
 
     @Operation(summary = "User Sign up", description = "Registration of a new user in the system with 'UNVERIFIED' status")
     @PostMapping(SIGNUP)
-    public ResponseEntity<?> signup(@RequestBody UserSignUpDTO userSignUpDto) {
+    public ResponseEntity<?> signup(@RequestBody UserSignUpRequest userSignUpRequest) {
         try {
-            return ResponseEntity.ok(authManager.createUnverifiedUser(userSignUpDto));
+            return ResponseEntity.ok(authManager.createUnverifiedUser(userSignUpRequest));
         } catch (ForbiddenOperationException foe) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(foe.getMessage());
         } catch (BlankInputDataException | IllegalArgumentException | AddressException ee) {
@@ -66,7 +67,7 @@ public class AuthController {
 
     @Operation(summary = "User Email Verification", description = "Making user's status 'ACTIVE' by verifying the email using OTP")
     @PostMapping(SIGNUP + VERIFY_EMAIL)
-    public ResponseEntity<?> verifyEmail(@RequestBody UserVerifyEmailDTO verifyEmailDto) {
+    public ResponseEntity<?> verifyEmail(@RequestBody UserVerifyEmailRequest verifyEmailDto) {
         try {
             return ResponseEntity.ok(authManager.verifyUserEmail(verifyEmailDto));
         }  catch (ForbiddenOperationException foe) {
@@ -86,7 +87,7 @@ public class AuthController {
 
     @Operation(summary = "User Log in", description = "Log in the user in the system. The user with the JWT token is returned")
     @PostMapping(EndpointsConstants.LOGIN)
-    public ResponseEntity<?> login(@RequestBody UserLoginDTO loginDto) {
+    public ResponseEntity<?> login(@RequestBody UserLoginRequest loginDto) {
         try {
             return ResponseEntity.ok(authManager.login(loginDto));
         } catch (BlankInputDataException | IllegalArgumentException ide) {
@@ -118,4 +119,18 @@ public class AuthController {
         }
         return ResponseEntity.ok().build();
     }
+
+    //  If refresh token is expired - login again
+    //  If jwt token is expired, but the refresh token is not - generate new refresh and jwt tokens
+    @PostMapping(EndpointsConstants.REFRESH_TOKEN)
+    @Operation(summary = "Refresh token", description = "Generate new jwt and refresh tokens for the user")
+    public ResponseEntity<?> refreshToken(@RequestHeader(name = HttpHeaders.AUTHORIZATION) String jwtToken,
+                                          UserRefreshTokenRequest refreshTokenRequest) {
+        try {
+            return ResponseEntity.ok(authManager.refreshToken(refreshTokenRequest, jwtToken));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal server error");
+        }
+    }
+
 }

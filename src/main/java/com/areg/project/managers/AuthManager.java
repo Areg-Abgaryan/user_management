@@ -7,10 +7,12 @@ package com.areg.project.managers;
 import com.areg.project.converters.UserConverter;
 import com.areg.project.exceptions.ForbiddenOperationException;
 import com.areg.project.exceptions.UserNotFoundException;
-import com.areg.project.models.dtos.requests.user.UserLoginDTO;
-import com.areg.project.models.dtos.requests.user.UserSignUpDTO;
-import com.areg.project.models.dtos.requests.user.UserVerifyEmailDTO;
+import com.areg.project.models.dtos.requests.user.UserLoginRequest;
+import com.areg.project.models.dtos.requests.user.UserRefreshTokenRequest;
+import com.areg.project.models.dtos.requests.user.UserSignUpRequest;
+import com.areg.project.models.dtos.requests.user.UserVerifyEmailRequest;
 import com.areg.project.models.dtos.responses.user.UserLoginResponse;
+import com.areg.project.models.dtos.responses.user.UserRefreshTokenResponse;
 import com.areg.project.models.dtos.responses.user.UserSignupResponse;
 import com.areg.project.models.entities.UserEntity;
 import com.areg.project.security.jwt.JwtProvider;
@@ -55,7 +57,7 @@ public class AuthManager {
         this.userConverter = userConverter;
     }
 
-    public UserSignupResponse createUnverifiedUser(UserSignUpDTO signUpDto) throws AddressException {
+    public UserSignupResponse createUnverifiedUser(UserSignUpRequest signUpDto) throws AddressException {
 
         userInputValidator.validateUserInput(signUpDto);
 
@@ -64,7 +66,7 @@ public class AuthManager {
 
         if (entity == null) {
             //  Convert from dto, set crypto fields, create a new user in the system and send otp email
-            entity = userConverter.fromSignUpDtoToEntity(signUpDto);
+            entity = userConverter.fromRequestToEntity(signUpDto);
             fillSignUpEntityCryptoFields(entity, signUpDto.getPassword());
             return processUserAndSendEmail(userService.createUnverifiedUser(entity));
         }
@@ -81,7 +83,7 @@ public class AuthManager {
         }
     }
 
-    public UserSignupResponse verifyUserEmail(UserVerifyEmailDTO verifyEmailDto) throws AddressException {
+    public UserSignupResponse verifyUserEmail(UserVerifyEmailRequest verifyEmailDto) throws AddressException {
 
         userInputValidator.validateUserInput(verifyEmailDto);
 
@@ -108,7 +110,7 @@ public class AuthManager {
         return userConverter.fromEntityToSignUpResponse(savedEntity);
     }
 
-    public UserLoginResponse login(UserLoginDTO loginDto) throws AddressException {
+    public UserLoginResponse login(UserLoginRequest loginDto) throws AddressException {
 
         userInputValidator.validateUserInput(loginDto);
 
@@ -126,13 +128,14 @@ public class AuthManager {
         final var token = new UsernamePasswordToken(email, loginDto.getPassword());
         SecurityUtils.getSubject().login(token);
 
-        //  Update user's last log in time
-        userManager.updateLastLoginTime(email, Utils.getCurrentDateAndTime());
+        //  Update user's last log in date
+        userManager.updateLastLoginDate(email, Utils.getEpochSecondsNow());
 
         // Generate JWT token with user permissions wildcard
         final JwtToken jwtToken = jwtProvider.createJwtToken(email);
 
-        return new UserLoginResponse(userResponse.getFirstName(), userResponse.getLastName(), userResponse.getStatus(), jwtToken);
+        return new UserLoginResponse(userResponse.getUuid(), userResponse.getFirstName(), userResponse.getLastName(),
+                userResponse.getStatus(), jwtToken);
     }
 
     public void logout(String jwtToken) {
@@ -181,5 +184,10 @@ public class AuthManager {
         final long otpCreationTime = Utils.getEpochSecondsNow();
         entity.setOtpCreationTime(otpCreationTime);
         userService.updateUser(entity);
+    }
+
+    public UserRefreshTokenResponse refreshToken(UserRefreshTokenRequest refreshTokenRequest, String jwtToken) {
+        //  FIXME !! Validate whether the jwt token is expired
+        return null;
     }
 }

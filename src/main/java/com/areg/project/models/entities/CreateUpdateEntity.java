@@ -9,11 +9,8 @@ import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Getter @Setter
@@ -21,14 +18,14 @@ import java.util.UUID;
 @EntityListeners(AuditingEntityListener.class)
 abstract class CreateUpdateEntity extends BaseEntity {
 
-    @Column(name = "uuid", unique = true)
+    @Column(name = "uuid", unique = true, nullable = false)
     protected UUID uuid;
 
-    @CreatedDate
-    @Column(name = "creation_date")
-    protected LocalDateTime creationDate;
+    //  Epoch seconds of creation date
+    @Column(name = "created_at", nullable = false)
+    protected long createdAt;
 
-    @LastModifiedDate
-    @Column(name = "update_date")
-    protected LocalDateTime updateDate;
+    //  Epoch seconds of update date
+    @Column(name = "updated_at", nullable = false)
+    protected long updatedAt;
 }

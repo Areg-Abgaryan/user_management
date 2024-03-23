@@ -13,12 +13,12 @@ import lombok.Getter;
 
 import java.util.Set;
 
-@Entity
 @Getter
+@Entity(name = "user_group")
 @Table(name = "user_group", schema = "public")
 public class UserGroupEntity extends CreateUpdateEntity {
 
-    @Column(name = "name", unique = true)
+    @Column(name = "name", unique = true, nullable = false)
     private String name;
 
     @OneToMany(mappedBy = "userGroup")

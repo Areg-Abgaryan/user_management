@@ -32,7 +32,7 @@ public class UserController {
     @Operation(summary = "Get all active users", description = "Get all active users in the system")
     @GetMapping(EndpointsConstants.GET_ALL)
     public ResponseEntity<?> getAllActiveUsers() {
-        //  FIXME !! Add jwt token permission check here also
+        //  FIXME !! Add jwt token auth check here also
         try {
             return ResponseEntity.ok(userManager.getAllActiveUsers());
         } catch (Exception e) {

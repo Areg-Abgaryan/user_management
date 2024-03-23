@@ -18,7 +18,7 @@ public interface IUserService {
 
     void removeOtpData(UserEntity userEntity);
 
-    void updateLastLoginTime(String email, LocalDateTime lastLoginDate);
+    void updateLastLoginDate(String email, long lastLoginDate);
 
     void updateUser(UserEntity entity);
 

@@ -5,9 +5,10 @@
 package com.areg.project.converters;
 
 import com.areg.project.models.dtos.UserDTO;
-import com.areg.project.models.dtos.requests.user.UserSignUpDTO;
+import com.areg.project.models.dtos.requests.user.UserSignUpRequest;
 import com.areg.project.models.dtos.responses.user.UserSignupResponse;
 import com.areg.project.models.entities.UserEntity;
+import com.areg.project.utils.Utils;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
@@ -24,7 +25,7 @@ public class UserConverter {
         }
 
         final var signupResponse = new UserSignupResponse();
-        signupResponse.setId(entity.getUuid());
+        signupResponse.setUuid(entity.getUuid());
         signupResponse.setEmail(entity.getEmail());
         signupResponse.setFirstName(entity.getFirstName());
         signupResponse.setLastName(entity.getLastName());
@@ -32,7 +33,7 @@ public class UserConverter {
         return signupResponse;
     }
 
-    public UserEntity fromSignUpDtoToEntity(UserSignUpDTO signUpDto) {
+    public UserEntity fromRequestToEntity(UserSignUpRequest signUpDto) {
         if (signUpDto == null) {
             return null;
         }
@@ -58,14 +59,15 @@ public class UserConverter {
         }
 
         final var userDto = new UserDTO();
-        userDto.setId(entity.getUuid());
+        userDto.setUuid(entity.getUuid());
         userDto.setEmail(entity.getEmail());
         userDto.setFirstName(entity.getFirstName());
         userDto.setLastName(entity.getLastName());
         userDto.setStatus(entity.getStatus());
-        userDto.setCreated(entity.getCreationDate());
-        userDto.setUpdated(entity.getUpdateDate());
-        userDto.setLastLoginTime(entity.getLastLoginTime());
+        //  FIXME !! Test this
+        userDto.setCreationDate(Utils.epochSecondsToLocalDateTime(entity.getCreatedAt()));
+        userDto.setUpdateDate(Utils.epochSecondsToLocalDateTime(entity.getUpdatedAt()));
+        userDto.setLastLoginDate(Utils.epochSecondsToLocalDateTime(entity.getLastLoginAt()));
         return userDto;
     }
 }

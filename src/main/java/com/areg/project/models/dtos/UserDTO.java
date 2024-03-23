@@ -19,8 +19,8 @@ import java.util.UUID;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class UserDTO {
 
-    @JsonProperty("id")
-    @NotBlank private UUID id;
+    @JsonProperty("uuid")
+    @NotBlank private UUID uuid;
 
     @JsonProperty("email")
     @NotBlank @Email
@@ -36,12 +36,12 @@ public class UserDTO {
     @JsonProperty("status")
     @NotBlank private UserStatus status;
 
-    @JsonProperty("created")
-    @NotBlank private LocalDateTime created;
+    @JsonProperty("creation_date")
+    @NotBlank private LocalDateTime creationDate;
 
-    @JsonProperty("updated")
-    @NotBlank private LocalDateTime updated;
+    @JsonProperty("update_date")
+    @NotBlank private LocalDateTime updateDate;
 
     @JsonProperty("last_login")
-    @NotBlank private LocalDateTime lastLoginTime;
+    @NotBlank private LocalDateTime lastLoginDate;
 }

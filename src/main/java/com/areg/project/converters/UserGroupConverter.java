@@ -30,7 +30,7 @@ public class UserGroupConverter {
         }
 
         final var userGroupDto = new UserGroupDTO();
-        userGroupDto.setId(entity.getUuid());
+        userGroupDto.setUuid(entity.getUuid());
         userGroupDto.setName(entity.getName());
         return userGroupDto;
     }

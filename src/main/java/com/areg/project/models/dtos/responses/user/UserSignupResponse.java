@@ -19,8 +19,8 @@ import java.util.UUID;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class UserSignupResponse {
 
-    @JsonProperty("id")
-    @NotBlank private UUID id;
+    @JsonProperty("uuid")
+    @NotBlank private UUID uuid;
 
     @JsonProperty("email")
     @NotBlank @Email private String email;

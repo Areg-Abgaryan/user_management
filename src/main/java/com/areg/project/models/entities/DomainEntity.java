@@ -13,15 +13,15 @@ import java.util.Objects;
 import java.util.Set;
 import lombok.Getter;
 
-@Entity
 @Getter
+@Entity(name = "domain")
 @Table(name = "domain")
 public class DomainEntity extends BaseEntity {
 
-    @Column(name = "name", unique = true)
+    @Column(name = "name", unique = true, nullable = false)
     private String name;
 
-    @Column(name = "code", unique = true)
+    @Column(name = "code", unique = true, nullable = false)
     private String code;
 
     @OneToMany(mappedBy = "domain")

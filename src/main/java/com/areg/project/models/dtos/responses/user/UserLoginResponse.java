@@ -12,10 +12,15 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+import java.util.UUID;
+
 @Getter
-@JsonIgnoreProperties(ignoreUnknown = true)
 @AllArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class UserLoginResponse {
+
+    @JsonProperty("uuid")
+    @NotBlank private UUID uuid;
 
     @JsonProperty("first_name")
     @NotBlank private String firstName;

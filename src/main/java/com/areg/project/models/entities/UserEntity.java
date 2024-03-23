@@ -18,35 +18,35 @@ import jakarta.persistence.Column;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
-
-@Entity
 @Getter @Setter
+@Entity(name = "user")
 @Table(name = "user", schema = "public")
 public class UserEntity extends CreateUpdateEntity {
 
-    @Column(name = "email", unique = true)
+    @Column(name = "email", unique = true, updatable = false, nullable = false)
     private String email;
 
-    @Column(name = "password")
+    @Column(name = "password", nullable = false)
     private String password;
 
-    @Column(name = "first_name")
+    @Column(name = "first_name", nullable = false)
     private String firstName;
 
-    @Column(name = "last_name")
+    @Column(name = "last_name", nullable = false)
     private String lastName;
 
-    @Column(name = "salt")
+    @Column(name = "salt", nullable = false)
     private String salt;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "user_status")
+    @Column(name = "status", nullable = false)
     private UserStatus status;
 
+    //  Epoch seconds of last login date
+    //  FIXME !! Test this also
     @CreatedDate
-    @Column(name = "last_login")
-    private LocalDateTime lastLoginTime;
+    @Column(name = "last_login_at")
+    private long lastLoginAt;
 
     @Column(name = "otp")
     private int otp;

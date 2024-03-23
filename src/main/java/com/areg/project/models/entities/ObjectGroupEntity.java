@@ -9,13 +9,10 @@ import lombok.Getter;
 import java.util.Set;
 import java.util.UUID;
 
-@Entity
 @Getter
+@Entity(name = "object_group")
 @Table(name = "object_group")
-public class ObjectGroupEntity extends BaseEntity {
-
-    @Column(name = "uuid")
-    private UUID uuid;
+public class ObjectGroupEntity extends CreateUpdateEntity {
 
     @Column(name = "name", unique = true)
     private String name;
