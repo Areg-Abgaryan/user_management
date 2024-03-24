@@ -18,7 +18,7 @@ public class WebConfiguration implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping(EndpointsConstants.ALL)
-                //  FIXME !! remove http after enabling https
+                //  FIXME !! Enable https, and remove http after that
                 .allowedOrigins("http://localhost", "https://localhost")
                 .allowedMethods()
                 .allowedMethods(getAllRequestMethodNames())

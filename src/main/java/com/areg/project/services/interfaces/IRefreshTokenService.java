@@ -6,7 +6,11 @@ package com.areg.project.services.interfaces;
 
 import com.areg.project.models.entities.RefreshTokenEntity;
 
+import java.util.UUID;
+
 public interface IRefreshTokenService {
 
-    RefreshTokenEntity getRefreshTokenByUserId(Long userId);
+    RefreshTokenEntity createRefreshToken(UUID userUuid);
+
+    RefreshTokenEntity getByUserEntityId(Long userId);
 }

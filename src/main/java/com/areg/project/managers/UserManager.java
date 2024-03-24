@@ -9,6 +9,7 @@ import com.areg.project.models.dtos.UserDTO;
 import com.areg.project.models.dtos.responses.user.UserSignupResponse;
 import com.areg.project.models.entities.UserEntity;
 import com.areg.project.services.implementations.UserService;
+import com.areg.project.utils.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -31,8 +32,8 @@ public class UserManager {
         return userConverter.fromEntityToDto(userService.getAllActiveUsers());
     }
 
-    public void updateLastLoginDate(String email, long loginDate) {
-        userService.updateLastLoginDate(email, loginDate);
+    public void updateLastLoginDate(String email) {
+        userService.updateLastLoginDate(email, Utils.getEpochSecondsNow());
     }
 
     public UserSignupResponse getActiveUserByEmail(String email) {

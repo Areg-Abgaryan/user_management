@@ -22,12 +22,11 @@ public interface IUserService {
 
     void updateUser(UserEntity entity);
 
+    List<UserEntity> getAllActiveUsers();
 
     UserEntity getActiveUserByEmail(String email);
 
     UserEntity getActiveUserByUuid(UUID uuid);
 
     UserEntity getUserByEmail(String email);
-
-    List<UserEntity> getAllActiveUsers();
 }

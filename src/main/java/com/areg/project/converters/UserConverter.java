@@ -64,7 +64,6 @@ public class UserConverter {
         userDto.setFirstName(entity.getFirstName());
         userDto.setLastName(entity.getLastName());
         userDto.setStatus(entity.getStatus());
-        //  FIXME !! Test this
         userDto.setCreationDate(Utils.epochSecondsToLocalDateTime(entity.getCreatedAt()));
         userDto.setUpdateDate(Utils.epochSecondsToLocalDateTime(entity.getUpdatedAt()));
         userDto.setLastLoginDate(Utils.epochSecondsToLocalDateTime(entity.getLastLoginAt()));

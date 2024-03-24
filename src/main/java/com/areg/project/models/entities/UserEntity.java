@@ -43,7 +43,6 @@ public class UserEntity extends CreateUpdateEntity {
     private UserStatus status;
 
     //  Epoch seconds of last login date
-    //  FIXME !! Test this also
     @CreatedDate
     @Column(name = "last_login_at")
     private long lastLoginAt;

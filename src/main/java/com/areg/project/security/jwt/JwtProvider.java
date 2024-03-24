@@ -5,6 +5,7 @@
 package com.areg.project.security.jwt;
 
 import com.areg.project.builders.PermissionsWildcardBuilder;
+import com.areg.project.utils.Utils;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
@@ -30,14 +31,14 @@ import java.util.Set;
 public class JwtProvider {
 
     private final String secret;
-    private final long validTimeMillis;
+    private final long validTimeSeconds;
     private final PermissionsWildcardBuilder permissionsWildcardBuilder;
 
     @Autowired
-    public JwtProvider(@Value("${jwt.secret}") String secret, @Value("${jwt.expired}") long validTimeMillis,
+    public JwtProvider(@Value("${jwt.secret}") String secret, @Value("${jwt.expired}") long validTimeSeconds,
                        PermissionsWildcardBuilder permissionsWildcardBuilder) {
         this.secret = Base64.getEncoder().encodeToString(secret.getBytes());
-        this.validTimeMillis = validTimeMillis;
+        this.validTimeSeconds = validTimeSeconds;
         this.permissionsWildcardBuilder = permissionsWildcardBuilder;
     }
 
@@ -46,10 +47,11 @@ public class JwtProvider {
     // Generate a new JWT
     public JwtToken createJwtToken(String email) {
         final Set<String> permissionsSet = permissionsWildcardBuilder.build(email);
+        final long epochNow = Utils.getEpochSecondsNow();
         final String token = Jwts.builder()
                 .subject(email)
-                .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + validTimeMillis))
+                .issuedAt(new Date(epochNow))
+                .expiration(new Date(epochNow + validTimeSeconds))
                 .signWith(getSigningKey())
                 .claim("permissions", permissionsSet)
                 .compact();
@@ -60,7 +62,7 @@ public class JwtProvider {
     //  FIXME !! Test this
     public void checkPermissions(String jwtToken, String domain, String operation) {
         final List<String> permissions = getPermissionsFromToken(jwtToken);
-        if (permissions.stream().noneMatch(perm -> perm.contains(domain) && !perm.contains(operation))) {
+        if (permissions.stream().noneMatch(perm -> perm.contains(domain) && perm.contains(operation))) {
             throw new AuthorizationException("You don't have permissions for this operation");
         }
     }

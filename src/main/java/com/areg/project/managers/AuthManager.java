@@ -8,11 +8,12 @@ import com.areg.project.converters.UserConverter;
 import com.areg.project.exceptions.ForbiddenOperationException;
 import com.areg.project.exceptions.UserNotFoundException;
 import com.areg.project.models.dtos.requests.user.UserLoginRequest;
-import com.areg.project.models.dtos.requests.user.UserRefreshTokenRequest;
+import com.areg.project.models.dtos.requests.user.RefreshTokenRequest;
 import com.areg.project.models.dtos.requests.user.UserSignUpRequest;
 import com.areg.project.models.dtos.requests.user.UserVerifyEmailRequest;
+import com.areg.project.models.dtos.responses.user.RefreshTokenUpdateResponse;
 import com.areg.project.models.dtos.responses.user.UserLoginResponse;
-import com.areg.project.models.dtos.responses.user.UserRefreshTokenResponse;
+import com.areg.project.models.dtos.responses.user.RefreshTokenCreateResponse;
 import com.areg.project.models.dtos.responses.user.UserSignupResponse;
 import com.areg.project.models.entities.UserEntity;
 import com.areg.project.security.jwt.JwtProvider;
@@ -35,18 +36,19 @@ public class AuthManager {
     private final EncryptionManager encryptionManager;
     private final EmailVerificationManager emailVerificationManager;
 
-    private final UserManager userManager;
-    private final UserService userService;
     private final UserInputValidator userInputValidator;
     private final UserDataValidator userDataValidator;
+    private final UserManager userManager;
+    private final UserService userService;
     private final UserConverter userConverter;
-
+    private final RefreshTokenManager refreshTokenManager;
 
     @Autowired
     public AuthManager(JwtProvider jwtProvider, EncryptionManager encryptionManager,
                        EmailVerificationManager emailVerificationManager, UserManager userManager,
                        UserService userService, UserInputValidator userInputValidator,
-                       UserDataValidator userDataValidator, UserConverter userConverter) {
+                       UserDataValidator userDataValidator, UserConverter userConverter,
+                       RefreshTokenManager refreshTokenManager) {
         this.jwtProvider = jwtProvider;
         this.encryptionManager = encryptionManager;
         this.emailVerificationManager = emailVerificationManager;
@@ -55,10 +57,11 @@ public class AuthManager {
         this.userInputValidator = userInputValidator;
         this.userDataValidator = userDataValidator;
         this.userConverter = userConverter;
+        this.refreshTokenManager = refreshTokenManager;
     }
 
     public UserSignupResponse createUnverifiedUser(UserSignUpRequest signUpDto) throws AddressException {
-
+        //  Validate user input data
         userInputValidator.validateUserInput(signUpDto);
 
         //  Check whether the user already has tried to sign up
@@ -84,7 +87,7 @@ public class AuthManager {
     }
 
     public UserSignupResponse verifyUserEmail(UserVerifyEmailRequest verifyEmailDto) throws AddressException {
-
+        //  Validate user input data
         userInputValidator.validateUserInput(verifyEmailDto);
 
         //  Get the user with specified email
@@ -111,7 +114,7 @@ public class AuthManager {
     }
 
     public UserLoginResponse login(UserLoginRequest loginDto) throws AddressException {
-
+        //  Validate user input data
         userInputValidator.validateUserInput(loginDto);
 
         final String email = loginDto.getEmail();
@@ -129,21 +132,34 @@ public class AuthManager {
         SecurityUtils.getSubject().login(token);
 
         //  Update user's last log in date
-        userManager.updateLastLoginDate(email, Utils.getEpochSecondsNow());
+        userManager.updateLastLoginDate(email);
 
         // Generate JWT token with user permissions wildcard
         final JwtToken jwtToken = jwtProvider.createJwtToken(email);
 
+        //  Generate refresh token for the user
+        final RefreshTokenCreateResponse refreshToken = refreshTokenManager.createRefreshToken(userResponse.getUuid());
+
         return new UserLoginResponse(userResponse.getUuid(), userResponse.getFirstName(), userResponse.getLastName(),
-                userResponse.getStatus(), jwtToken);
+                userResponse.getStatus(), jwtToken, refreshToken);
     }
 
+    //  FIXME !! There is a bug, when the user is logged out, he still can access other api-s
     public void logout(String jwtToken) {
         if (jwtProvider.isTokenValid(jwtToken)) {
             SecurityUtils.getSubject().logout();
         } else {
             throw new AuthenticationException("Could not log out");
         }
+    }
+
+    public RefreshTokenUpdateResponse refreshToken(RefreshTokenRequest refreshTokenRequest, String jwtToken) {
+        //  Check whether the jwt token is valid yet
+        if (jwtProvider.isTokenValid(jwtToken)) {
+            throw new ForbiddenOperationException("JWT token is not expired yet");
+        }
+
+        return refreshTokenManager.updateRefreshToken(refreshTokenRequest);
     }
 
 
@@ -183,11 +199,5 @@ public class AuthManager {
 
         final long otpCreationTime = Utils.getEpochSecondsNow();
         entity.setOtpCreationTime(otpCreationTime);
-        userService.updateUser(entity);
-    }
-
-    public UserRefreshTokenResponse refreshToken(UserRefreshTokenRequest refreshTokenRequest, String jwtToken) {
-        //  FIXME !! Validate whether the jwt token is expired
-        return null;
     }
 }

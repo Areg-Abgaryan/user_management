@@ -11,7 +11,7 @@ import com.areg.project.exceptions.UserNotFoundException;
 import com.areg.project.exceptions.WrongOtpException;
 import com.areg.project.managers.AuthManager;
 import com.areg.project.models.dtos.requests.user.UserLoginRequest;
-import com.areg.project.models.dtos.requests.user.UserRefreshTokenRequest;
+import com.areg.project.models.dtos.requests.user.RefreshTokenRequest;
 import com.areg.project.models.dtos.requests.user.UserSignUpRequest;
 import com.areg.project.models.dtos.requests.user.UserVerifyEmailRequest;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -103,6 +103,7 @@ public class AuthController {
         }
     }
 
+    //  FIXME !! Check whether after logout jwt and refresh tokens are set to expired
     @PostMapping(EndpointsConstants.LOGOUT)
     @Operation(summary = "User log out", description = "Log out the user from the system")
     public ResponseEntity<?> logout(@RequestHeader(name = HttpHeaders.AUTHORIZATION) String jwtToken) {
@@ -120,14 +121,18 @@ public class AuthController {
         return ResponseEntity.ok().build();
     }
 
+    //  FIXME !! Test whether when the jwt and refresh tokens are expired, the user can access different controller apis or not
+
     //  If refresh token is expired - login again
     //  If jwt token is expired, but the refresh token is not - generate new refresh and jwt tokens
     @PostMapping(EndpointsConstants.REFRESH_TOKEN)
     @Operation(summary = "Refresh token", description = "Generate new jwt and refresh tokens for the user")
     public ResponseEntity<?> refreshToken(@RequestHeader(name = HttpHeaders.AUTHORIZATION) String jwtToken,
-                                          UserRefreshTokenRequest refreshTokenRequest) {
+                                          RefreshTokenRequest refreshTokenRequest) {
         try {
             return ResponseEntity.ok(authManager.refreshToken(refreshTokenRequest, jwtToken));
+        } catch (ForbiddenOperationException foe) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(foe.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal server error");
         }

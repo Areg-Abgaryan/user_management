@@ -33,4 +33,7 @@ public class UserLoginResponse {
 
     @JsonProperty("jwt_token")
     @NotBlank private JwtToken jwtToken;
+
+    @JsonProperty("refresh_token")
+    @NotBlank private RefreshTokenCreateResponse refreshToken;
 }

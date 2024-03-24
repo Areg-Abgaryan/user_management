@@ -13,9 +13,8 @@ import java.util.UUID;
 
 @Getter
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class UserRefreshTokenRequest {
+public class RefreshTokenRequest {
 
-    @JsonProperty("user_id")
-    @NotBlank
-    private UUID userId;
+    @JsonProperty("user_uuid")
+    @NotBlank private UUID userUuid;
 }

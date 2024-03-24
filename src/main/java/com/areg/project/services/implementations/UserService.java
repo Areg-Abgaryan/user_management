@@ -42,6 +42,7 @@ public class UserService implements IUserService {
     @Transactional
     public UserEntity saveVerifiedUser(UserEntity entity) {
         entity.setStatus(UserStatus.ACTIVE);
+        entity.setUpdatedAt(Utils.getEpochSecondsNow());
         return userRepository.saveAndFlush(entity);
     }
 
@@ -60,6 +61,12 @@ public class UserService implements IUserService {
         userRepository.saveAndFlush(entity.get());
     }
 
+
+    @Override
+    public List<UserEntity> getAllActiveUsers() {
+        return userRepository.getAllActiveUsers();
+    }
+
     @Override
     public UserEntity getActiveUserByEmail(String email) {
         return userRepository.findActiveUserByEmail(email).orElse(null);
@@ -73,11 +80,6 @@ public class UserService implements IUserService {
     @Override
     public UserEntity getUserByEmail(String email) {
         return userRepository.findByEmail(email).orElse(null);
-    }
-
-    @Override
-    public List<UserEntity> getAllActiveUsers() {
-        return userRepository.getAllActiveUsers();
     }
 
     @Override

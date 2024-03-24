@@ -10,8 +10,9 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
+import lombok.Setter;
 
-@Getter
+@Getter @Setter
 @Entity(name = "refresh_token")
 @Table(name = "refresh_token", schema = "public")
 public class RefreshTokenEntity extends CreateUpdateEntity {
@@ -22,8 +23,8 @@ public class RefreshTokenEntity extends CreateUpdateEntity {
     @Column(name = "salt", unique = true, nullable = false)
     private String salt;
 
-    @Column(name = "expiration_date", nullable = false)
-    private long expirationDate;
+    @Column(name = "expiring_at", nullable = false)
+    private long expiringAt;
 
     @OneToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id", unique = true, updatable = false)

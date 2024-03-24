@@ -4,21 +4,26 @@
 
 package com.areg.project.models.dtos.responses.user;
 
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
+import lombok.Setter;
+
+import java.util.UUID;
 
 @Getter
+@Setter
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class UserRefreshTokenResponse {
+public class RefreshTokenUpdateResponse {
+
+    @JsonProperty("token_uuid")
+    @NotBlank
+    private UUID tokenUuid;
+
+    @JsonProperty("token")
+    @NotBlank private String refreshToken;
 
     @JsonProperty("jwt_token")
     @NotBlank private String jwtToken;
-
-    @JsonProperty("refresh_token")
-    @NotBlank private String refreshToken;
-
-
 }
