@@ -37,50 +37,34 @@ public class RefreshTokenService implements IRefreshTokenService {
     }
 
 
-    //  FIXME !! Refactor
     @Override
     @Transactional
     public RefreshTokenEntity createRefreshToken(UUID userUuid) {
 
         final UserEntity userEntity = userService.getActiveUserByUuid(userUuid);
-        final RefreshTokenEntity refreshTokenEntity = getByUserEntityId(userEntity.getId());
-
-        //  Update existing refresh token
-        if (refreshTokenEntity != null) {
-
-            //  Set token creation, update and expiration dates
-            final long epochNow = Utils.getEpochSecondsNow();
-            refreshTokenEntity.setUpdatedAt(epochNow);
-            refreshTokenEntity.setExpiringAt(epochNow + validTimeSeconds);
-
-            //  Generate salt and encrypt the token with it
-            final UUID token = UUID.randomUUID();
-            final String salt = encryptionManager.generateSalt();
-            final String encryptedToken = encryptionManager.encrypt(token.toString(), salt);
-            refreshTokenEntity.setToken(encryptedToken);
-
-            return refreshTokenRepository.saveAndFlush(refreshTokenEntity);
-        }
+        RefreshTokenEntity refreshTokenEntity = getByUserEntityId(userEntity.getId());
 
         //  New refresh token flow
-        final var refreshToken = new RefreshTokenEntity();
-        refreshToken.setUuid(UUID.randomUUID());
-        refreshToken.setUserEntity(userEntity);
+        if (refreshTokenEntity == null) {
+            refreshTokenEntity = new RefreshTokenEntity();
+            refreshTokenEntity.setUuid(UUID.randomUUID());
+            refreshTokenEntity.setUserEntity(userEntity);
+        }
 
-        //  Generate salt and encrypt the token with it
+        //  Generate salt and encrypt the token
         final UUID token = UUID.randomUUID();
         final String salt = encryptionManager.generateSalt();
         final String encryptedToken = encryptionManager.encrypt(token.toString(), salt);
-        refreshToken.setSalt(salt);
-        refreshToken.setToken(encryptedToken);
+        refreshTokenEntity.setSalt(salt);
+        refreshTokenEntity.setToken(encryptedToken);
 
-        //  Set token creation, update and expiration dates
+        //  Set token creation, update, and expiration dates
         final long epochNow = Utils.getEpochSecondsNow();
-        refreshToken.setCreatedAt(epochNow);
-        refreshToken.setUpdatedAt(epochNow);
-        refreshToken.setExpiringAt(epochNow + validTimeSeconds);
+        refreshTokenEntity.setCreatedAt(epochNow);
+        refreshTokenEntity.setUpdatedAt(epochNow);
+        refreshTokenEntity.setExpiringAt(epochNow + validTimeSeconds);
 
-        return refreshTokenRepository.saveAndFlush(refreshToken);
+        return refreshTokenRepository.saveAndFlush(refreshTokenEntity);
     }
 
     @Override
