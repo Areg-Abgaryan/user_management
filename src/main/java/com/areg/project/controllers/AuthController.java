@@ -6,9 +6,9 @@ package com.areg.project.controllers;
 
 import com.areg.project.exceptions.BlankInputDataException;
 import com.areg.project.exceptions.ForbiddenOperationException;
-import com.areg.project.exceptions.OtpTimeoutException;
+import com.areg.project.exceptions.InvalidOtpException;
+import com.areg.project.exceptions.SessionExpiredException;
 import com.areg.project.exceptions.UserNotFoundException;
-import com.areg.project.exceptions.WrongOtpException;
 import com.areg.project.managers.AuthManager;
 import com.areg.project.models.dtos.requests.user.UserLoginRequest;
 import com.areg.project.models.dtos.requests.user.RefreshTokenRequest;
@@ -74,10 +74,8 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(foe.getMessage());
         } catch (UserNotFoundException une) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(une.getMessage());
-        } catch (WrongOtpException | OtpTimeoutException pe) {
-            return ResponseEntity.status(HttpStatus.REQUEST_TIMEOUT).body(pe.getMessage());
-        } catch (IllegalArgumentException iae) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(iae.getMessage());
+        } catch (InvalidOtpException | IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (org.apache.shiro.authc.AuthenticationException ae) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Wrong password provided");
         } catch (Exception e) {
@@ -93,7 +91,7 @@ public class AuthController {
         } catch (BlankInputDataException | IllegalArgumentException ide) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ide.getMessage());
         } catch (UserNotFoundException ue) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Couldn't find a user with this email");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ue.getMessage());
         } catch (org.apache.shiro.authc.AuthenticationException ae) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Wrong password provided");
         } catch (ForbiddenOperationException foe) {
@@ -128,14 +126,17 @@ public class AuthController {
     @PostMapping(EndpointsConstants.REFRESH_TOKEN)
     @Operation(summary = "Refresh token", description = "Generate new jwt and refresh tokens for the user")
     public ResponseEntity<?> refreshToken(@RequestHeader(name = HttpHeaders.AUTHORIZATION) String jwtToken,
-                                          RefreshTokenRequest refreshTokenRequest) {
+                                          @RequestBody RefreshTokenRequest refreshTokenRequest) {
         try {
             return ResponseEntity.ok(authManager.refreshToken(refreshTokenRequest, jwtToken));
         } catch (ForbiddenOperationException foe) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(foe.getMessage());
+        } catch (SessionExpiredException see) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(see.getMessage());
+        } catch (JwtException | IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal server error");
         }
     }
-
 }

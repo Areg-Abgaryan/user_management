@@ -2,14 +2,12 @@
  * Copyright (c) 2024 Areg Abgaryan
  */
 
-package com.areg.project.security.jwt;
+package com.areg.project.security.tokens;
 
 import com.areg.project.builders.PermissionsWildcardBuilder;
 import com.areg.project.utils.Utils;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -47,11 +45,10 @@ public class JwtProvider {
     // Generate a new JWT
     public JwtToken createJwtToken(String email) {
         final Set<String> permissionsSet = permissionsWildcardBuilder.build(email);
-        final long epochNow = Utils.getEpochSecondsNow();
         final String token = Jwts.builder()
                 .subject(email)
-                .issuedAt(new Date(epochNow))
-                .expiration(new Date(epochNow + validTimeSeconds))
+                .issuedAt(new Date())
+                .expiration(new Date((Utils.getEpochSecondsNow() + validTimeSeconds) * 1000))
                 .signWith(getSigningKey())
                 .claim("permissions", permissionsSet)
                 .compact();
@@ -67,20 +64,15 @@ public class JwtProvider {
         }
     }
 
-    // Validate the JWT token
+    // Validate the JWT token and expiration date
     public boolean isTokenValid(String token) {
-        //  Check whether the token is empty
         if (StringUtils.isBlank(token)) {
             throw new JwtException("Jwt token cannot be blank");
         }
 
-        final Jws<Claims> claims = Jwts.parser().setSigningKey(getSigningKey()).build().parseSignedClaims(token);
-
-        // Verify nullability and expiration time
-        return claims != null && claims.getPayload() != null && claims.getPayload().getExpiration() != null &&
-                claims.getPayload().getExpiration().after(new Date());
+        Jwts.parser().setSigningKey(getSigningKey()).build().parseSignedClaims(token);
+        return true;
     }
-
 
     private List<String> getPermissionsFromToken(String token) {
         try {

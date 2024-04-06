@@ -47,11 +47,13 @@ public class UserService implements IUserService {
     }
 
     @Override
+    @Transactional
     public void updateUser(UserEntity entity) {
         userRepository.saveAndFlush(entity);
     }
 
     @Override
+    @Transactional
     public void updateLastLoginDate(String email, long loginTime) {
         final Optional<UserEntity> entity = userRepository.findActiveUserByEmail(email);
         if (entity.isEmpty()) {
@@ -83,6 +85,7 @@ public class UserService implements IUserService {
     }
 
     @Override
+    @Transactional
     public void removeOtpData(UserEntity entity) {
         entity.setOtp(0);
         entity.setOtpCreationTime(0);

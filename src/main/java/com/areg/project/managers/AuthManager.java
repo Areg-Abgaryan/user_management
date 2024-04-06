@@ -16,12 +16,13 @@ import com.areg.project.models.dtos.responses.user.UserLoginResponse;
 import com.areg.project.models.dtos.responses.user.RefreshTokenCreateResponse;
 import com.areg.project.models.dtos.responses.user.UserSignupResponse;
 import com.areg.project.models.entities.UserEntity;
-import com.areg.project.security.jwt.JwtProvider;
-import com.areg.project.security.jwt.JwtToken;
+import com.areg.project.security.tokens.JwtProvider;
+import com.areg.project.security.tokens.JwtToken;
 import com.areg.project.services.implementations.UserService;
 import com.areg.project.utils.Utils;
 import com.areg.project.validators.UserDataValidator;
 import com.areg.project.validators.UserInputValidator;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.mail.internet.AddressException;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
@@ -120,12 +121,13 @@ public class AuthManager {
         final String email = loginDto.getEmail();
 
         //  Check whether the user exists in the system
-        final UserSignupResponse userResponse = userManager.getActiveUserByEmail(email);
-        if (userResponse == null) {
+        final UserEntity userEntity = userService.getUserByEmail(email);
+        if (userEntity == null) {
             throw new UserNotFoundException(email);
         }
 
-        userDataValidator.blockInactiveUserLogin(userResponse.getStatus(), email);
+        //  Validate user's status
+        userDataValidator.blockInactiveUserLogin(userEntity.getStatus(), email);
 
         //  Log in and update last log in time
         final var token = new UsernamePasswordToken(email, loginDto.getPassword());
@@ -138,10 +140,10 @@ public class AuthManager {
         final JwtToken jwtToken = jwtProvider.createJwtToken(email);
 
         //  Generate refresh token for the user
-        final RefreshTokenCreateResponse refreshToken = refreshTokenManager.createRefreshToken(userResponse.getUuid());
+        final RefreshTokenCreateResponse refreshToken = refreshTokenManager.createRefreshToken(userEntity.getUuid());
 
-        return new UserLoginResponse(userResponse.getUuid(), userResponse.getFirstName(), userResponse.getLastName(),
-                userResponse.getStatus(), jwtToken, refreshToken);
+        return new UserLoginResponse(userEntity.getUuid(), userEntity.getFirstName(), userEntity.getLastName(),
+                userEntity.getStatus(), jwtToken, refreshToken);
     }
 
     //  FIXME !! There is a bug, when the user is logged out, he still can access other api-s
@@ -154,12 +156,14 @@ public class AuthManager {
     }
 
     public RefreshTokenUpdateResponse refreshToken(RefreshTokenRequest refreshTokenRequest, String jwtToken) {
-        //  Check whether the jwt token is valid yet
-        if (jwtProvider.isTokenValid(jwtToken)) {
-            throw new ForbiddenOperationException("JWT token is not expired yet");
+        try {
+            if (jwtProvider.isTokenValid(jwtToken)) {
+                throw new ForbiddenOperationException("Jwt token is not expired yet");
+            }
+        } catch (ExpiredJwtException e) {
+            return refreshTokenManager.updateRefreshToken(refreshTokenRequest);
         }
-
-        return refreshTokenManager.updateRefreshToken(refreshTokenRequest);
+        return null;
     }
 
 
@@ -178,7 +182,7 @@ public class AuthManager {
 
     private void fillSignUpEntityCryptoFields(UserEntity entity, String password) {
         if (entity == null) {
-            return;
+            throw new UserNotFoundException();
         }
 
         //  Set salt

@@ -5,7 +5,7 @@
 package com.areg.project.models.dtos.responses.user;
 
 import com.areg.project.models.enums.UserStatus;
-import com.areg.project.security.jwt.JwtToken;
+import com.areg.project.security.tokens.JwtToken;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;

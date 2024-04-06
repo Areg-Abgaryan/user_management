@@ -4,9 +4,11 @@
 
 package com.areg.project.exceptions;
 
+import java.util.UUID;
+
 public class AccessControlNotFoundException extends RuntimeException {
 
-    public AccessControlNotFoundException(Long userGroupId) {
-        super("Access control for user group id " + userGroupId + " not found");
+    public AccessControlNotFoundException(UUID userGroupUuid) {
+        super("Access control for user group id '" + userGroupUuid + "' was not found");
     }
 }

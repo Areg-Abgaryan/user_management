@@ -28,11 +28,11 @@ public class ShiroConfig {
         return new ShiroRealm();
     }
 
+    //  FIXME !! Move to spring security and handle all the permissions check here :
     @Bean
     public ShiroFilterChainDefinition shiroFilterChainDefinition() {
         final var chainDefinition = new DefaultShiroFilterChainDefinition();
 
-        //  FIXME !! Check this
         //  These paths should be accessible without requiring authentication.
         chainDefinition.addPathDefinition(EndpointsConstants.API, "anon");
         chainDefinition.addPathDefinition(EndpointsConstants.LOGIN, "anon");

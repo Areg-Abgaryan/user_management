@@ -48,7 +48,7 @@ public class PermissionsWildcardBuilder {
             return Collections.emptySet();
         }
 
-        final AccessControlEntity accessControl = accessControlService.getByUserGroupId(userGroup.getId());
+        final AccessControlEntity accessControl = accessControlService.getByUserGroupId(userGroup);
         final Set<ObjectGroupEntity> objectGroupSet = accessControl.getObjectGroups();
         final Set<String> wildcards = new HashSet<>();
 

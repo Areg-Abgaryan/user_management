@@ -5,12 +5,16 @@
 package com.areg.project.managers;
 
 import com.areg.project.converters.RefreshTokenConverter;
+import com.areg.project.exceptions.BlankInputDataException;
 import com.areg.project.models.dtos.requests.user.RefreshTokenRequest;
 import com.areg.project.models.dtos.responses.user.RefreshTokenCreateResponse;
 import com.areg.project.models.dtos.responses.user.RefreshTokenUpdateResponse;
 import com.areg.project.models.entities.RefreshTokenEntity;
-import com.areg.project.security.jwt.JwtProvider;
+import com.areg.project.security.tokens.JwtProvider;
+import com.areg.project.security.tokens.JwtToken;
+import com.areg.project.security.tokens.RefreshToken;
 import com.areg.project.services.implementations.RefreshTokenService;
+import com.areg.project.utils.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -39,19 +43,19 @@ public class RefreshTokenManager {
     }
 
     //  Update existing refresh token
-    public RefreshTokenUpdateResponse updateRefreshToken(RefreshTokenRequest refreshTokenRequest) {
-        //  FIXME !!
-        //final Optional<RefreshTokenEntity> token = refreshTokenRepository.findByUserEntityAndRefreshTokenId(userEntity, refreshTokenInputDto.getRefreshToken());
+    public RefreshTokenUpdateResponse updateRefreshToken(RefreshTokenRequest request) {
+        //  Validate input refresh token request data
+        if (request == null || request.getUserUuid() == null) {
+            throw new BlankInputDataException();
+        }
 
-        //  Has neither JWT token, nor refresh token (expired)
-        //if (token.isEmpty() || authManager.isRefreshTokenExpired(token.get())) {
-        //    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Войдите в систему заново");
-        //}
-
-        //final UserEntity user = token.get().getUserEntity();
+        //  Generate new refresh token
+        final RefreshTokenEntity updatedRefreshToken = refreshTokenService.updateRefreshToken(request.getUserUuid());
+        final RefreshToken refreshToken = refreshTokenConverter.fromEntityToToken(updatedRefreshToken);
 
         //  Generate new JWT token
-        //return jwtProvider.createJwtToken(email);
-        return null;
+        final JwtToken jwtToken = jwtProvider.createJwtToken(updatedRefreshToken.getUserEntity().getEmail());
+
+        return new RefreshTokenUpdateResponse(refreshToken, jwtToken);
     }
 }

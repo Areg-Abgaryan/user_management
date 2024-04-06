@@ -5,8 +5,7 @@
 package com.areg.project.validators;
 
 import com.areg.project.exceptions.ForbiddenOperationException;
-import com.areg.project.exceptions.OtpTimeoutException;
-import com.areg.project.exceptions.WrongOtpException;
+import com.areg.project.exceptions.InvalidOtpException;
 import com.areg.project.models.enums.UserStatus;
 import com.areg.project.models.dtos.requests.user.UserVerifyEmailRequest;
 import com.areg.project.models.entities.UserEntity;
@@ -60,12 +59,12 @@ public class UserDataValidator {
         //  Check otp creation time. Timeout if 120 seconds passed
         if (entity.getOtpCreationTime() + otpTimeoutSeconds < now) {
             userService.removeOtpData(entity);
-            throw new OtpTimeoutException();
+            throw new InvalidOtpException("One time password input timeout");
         }
 
         //  Check otp
         if (verifyEmailDto.getOtp() != entity.getOtp()) {
-            throw new WrongOtpException();
+            throw new InvalidOtpException("Wrong one time password provided");
         }
     }
 }

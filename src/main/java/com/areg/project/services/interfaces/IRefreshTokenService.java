@@ -12,5 +12,7 @@ public interface IRefreshTokenService {
 
     RefreshTokenEntity createRefreshToken(UUID userUuid);
 
-    RefreshTokenEntity getByUserEntityId(Long userId);
+    RefreshTokenEntity updateRefreshToken(UUID userUuid);
+
+    RefreshTokenEntity getByUserId(Long userId);
 }

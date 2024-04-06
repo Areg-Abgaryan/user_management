@@ -14,8 +14,7 @@ import lombok.Getter;
 public class UserLoginRequest {
 
     @JsonProperty("email")
-    @NotBlank
-    private String email;
+    @NotBlank private String email;
 
     @JsonProperty("password")
     @NotBlank private String password;
