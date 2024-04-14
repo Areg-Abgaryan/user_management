@@ -21,10 +21,10 @@ public interface IUserRepository extends JpaRepository<UserEntity, Long> {
 
     Optional<UserEntity> findByEmail(String email);
 
-    @Query(nativeQuery = true, value = "SELECT * FROM \"user\" WHERE email = :email AND status = 'ACTIVE';")
+    @Query(nativeQuery = true, value = "SELECT * FROM \"user\" WHERE email = :email AND status = 'ACTIVE'")
     Optional<UserEntity> findActiveUserByEmail(String email);
 
-    @Query(nativeQuery = true, value = "SELECT * FROM \"user\" WHERE uuid = :uuid AND status = 'ACTIVE';")
+    @Query(nativeQuery = true, value = "SELECT * FROM \"user\" WHERE uuid = :uuid AND status = 'ACTIVE'")
     Optional<UserEntity> findActiveUserByUuid(UUID uuid);
 
     @Query(nativeQuery = true, value = "SELECT * FROM \"user\" WHERE status = 'ACTIVE'")

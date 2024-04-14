@@ -12,6 +12,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * Run a background job for removing users with status 'UNVERIFIED' from the system
  */
@@ -26,7 +28,8 @@ public class UserCleanupConfiguration {
         this.userRepository = userRepository;
     }
 
-    @Scheduled(initialDelayString = "${user.cleanup.initial.delay}", fixedDelayString = "${user.cleanup.fixed.delay}")
+    @Scheduled(timeUnit = TimeUnit.SECONDS,
+            initialDelayString = "${user.cleanup.initial.delay}", fixedDelayString = "${user.cleanup.fixed.delay}")
     @Transactional
     public void removeUnverifiedUsers() {
         userRepository.deleteAllByStatus(UserStatus.UNVERIFIED);

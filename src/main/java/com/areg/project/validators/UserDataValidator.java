@@ -22,7 +22,7 @@ public class UserDataValidator {
     private final UserService userService;
 
     @Autowired
-    public UserDataValidator(@Value("${otp.timeout.seconds}") int otpTimeoutSeconds, UserService userService) {
+    public UserDataValidator(@Value("${otp.timeout}") int otpTimeoutSeconds, UserService userService) {
         this.otpTimeoutSeconds = otpTimeoutSeconds;
         this.userService = userService;
     }

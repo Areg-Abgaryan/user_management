@@ -13,10 +13,14 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.util.UUID;
 
+/**
+ *  Abstract create or update entity class for reusing the fields in descendants.
+ *  Must remain public for lazy initialization retrieval.
+ */
 @Getter @Setter
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
-abstract class CreateUpdateEntity extends BaseEntity {
+abstract public class CreateUpdateEntity extends BaseEntity {
 
     @Column(name = "uuid", unique = true, nullable = false)
     protected UUID uuid;

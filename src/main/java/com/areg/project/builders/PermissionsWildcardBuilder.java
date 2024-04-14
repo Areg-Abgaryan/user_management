@@ -41,7 +41,6 @@ public class PermissionsWildcardBuilder {
 
     //  Build user permission wildcard by user email
     public Set<String> build(String email) {
-
         final UserEntity userById = userService.getActiveUserByEmail(email);
         final UserGroupEntity userGroup = userById.getUserGroup();
         if (userGroup == null) {
