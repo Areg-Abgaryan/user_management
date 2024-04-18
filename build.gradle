@@ -65,13 +65,13 @@ dependencies {
     //  Swagger
     implementation ('org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0')
 
-    //  JUnit 5
-    testImplementation ('org.junit.jupiter:junit-jupiter-api:5.10.2')
+    //  TestNG
+    testImplementation ('org.testng:testng:7.10.1')
 
     //  Other
     implementation ('org.apache.commons:commons-lang3:3.14.0')
 }
 
 test {
-    useJUnitPlatform()
+    useTestNG()
 }

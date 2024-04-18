@@ -10,10 +10,11 @@ import jakarta.persistence.Column;
 import jakarta.persistence.OneToMany;
 
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Set;
 
-@Getter
+@Getter @Setter
 @Entity(name = "user_group")
 @Table(name = "user_group", schema = "public")
 public class UserGroupEntity extends CreateUpdateEntity {
