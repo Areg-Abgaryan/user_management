@@ -48,7 +48,7 @@ public class UserEntity extends CreateUpdateEntity {
     private long lastLoginAt;
 
     @Column(name = "otp")
-    private int otp;
+    private String otp;
 
     @Column(name = "otp_creation_time")
     private long otpCreationTime;

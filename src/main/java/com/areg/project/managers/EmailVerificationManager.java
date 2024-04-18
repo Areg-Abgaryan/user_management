@@ -19,29 +19,31 @@ import java.util.Random;
 @Component
 public class EmailVerificationManager {
 
-    private static final short MAIL_OTP_LENGTH = 6;
     private static final String OTP_SUBJECT = "One time password";
 
+    private final short otpLength;
     private final String mailServer;
 
     private final JavaMailSender mailSender;
 
     @Autowired
-    public EmailVerificationManager(@Value("${mail.server}") String mailServer, JavaMailSender javaMailSender) {
+    public EmailVerificationManager(@Value("${otp.length}") short otpLength, @Value("${mail.server}") String mailServer,
+                                    JavaMailSender javaMailSender) {
+        this.otpLength = otpLength;
         this.mailServer = mailServer;
         this.mailSender = javaMailSender;
     }
 
-    public int generateOneTimePassword() {
+    public String generateOneTimePassword() {
         final var sb = new StringBuilder();
-        for (short i = 0; i < MAIL_OTP_LENGTH; ++i) {
-            // Generate random digit within 0-9
+        for (short i = 0; i < otpLength; ++i) {
+            //  Generate random digit within 0-9
             sb.append(new Random().nextInt(9));
         }
-        return Integer.parseInt(sb.toString());
+        return sb.toString();
     }
 
-    public void sendEmail(String emailAddress, long otp) {
+    public void sendEmail(String emailAddress, String otp) {
         if (StringUtils.isBlank(emailAddress)) {
             return;
         }
@@ -61,7 +63,7 @@ public class EmailVerificationManager {
     }
 
 
-    private SimpleMailMessage createMailMessage(String emailAddress, long otp) {
+    private SimpleMailMessage createMailMessage(String emailAddress, String otp) {
         final var message = new SimpleMailMessage();
         message.setFrom(mailServer);
         message.setTo(emailAddress);
@@ -70,7 +72,7 @@ public class EmailVerificationManager {
         return message;
     }
 
-    private static String createOtpMessageText(long otp) {
+    private static String createOtpMessageText(String otp) {
         return "Your OTP is " + otp + ". It is expiring in 2 minutes";
     }
 }

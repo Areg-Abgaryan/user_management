@@ -63,7 +63,7 @@ public class UserDataValidator {
         }
 
         //  Check otp
-        if (verifyEmailDto.getOtp() != entity.getOtp()) {
+        if (! entity.getOtp().equals(verifyEmailDto.getOtp())) {
             throw new InvalidOtpException("Wrong one time password provided");
         }
     }

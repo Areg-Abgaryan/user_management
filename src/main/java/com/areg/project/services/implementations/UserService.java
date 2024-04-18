@@ -87,7 +87,7 @@ public class UserService implements IUserService {
     @Override
     @Transactional
     public void removeOtpData(UserEntity entity) {
-        entity.setOtp(0);
+        entity.setOtp(null);
         entity.setOtpCreationTime(0);
         userRepository.saveAndFlush(entity);
     }

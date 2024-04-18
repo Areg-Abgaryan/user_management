@@ -53,7 +53,7 @@
 
             <column name="last_login_at" type="bigint"/>
 
-            <column name="otp" type="int"/>
+            <column name="otp" type="varchar(16)"/>
 
             <column name="otp_creation_time" type="bigint"/>
 

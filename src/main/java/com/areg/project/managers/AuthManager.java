@@ -198,7 +198,7 @@ public class AuthManager {
 
     private void fillOtpFields(UserEntity entity) {
         //  Create one time password and set to the user entity
-        final int otp = emailVerificationManager.generateOneTimePassword();
+        final String otp = emailVerificationManager.generateOneTimePassword();
         entity.setOtp(otp);
 
         final long otpCreationTime = Utils.getEpochSecondsNow();

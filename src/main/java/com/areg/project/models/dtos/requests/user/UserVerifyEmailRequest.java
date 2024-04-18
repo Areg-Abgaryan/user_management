@@ -21,5 +21,5 @@ public class UserVerifyEmailRequest {
     @NotBlank private String password;
 
     @JsonProperty("otp")
-    @NotBlank private long otp;
+    @NotBlank private String otp;
 }
