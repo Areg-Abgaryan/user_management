@@ -11,10 +11,11 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Set;
 
-@Getter
+@Getter @Setter
 @Entity(name = "role")
 @Table(name = "role", schema = "public")
 public class RoleEntity extends BaseEntity {
