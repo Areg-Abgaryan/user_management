@@ -6,6 +6,7 @@ package com.areg.project.repositories;
 
 import com.areg.project.models.enums.UserStatus;
 import com.areg.project.models.entities.UserEntity;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -21,7 +22,8 @@ public interface IUserRepository extends JpaRepository<UserEntity, Long> {
 
     Optional<UserEntity> findByEmail(String email);
 
-    @Query(nativeQuery = true, value = "SELECT * FROM \"user\" WHERE email = :email AND status = 'ACTIVE'")
+    @EntityGraph(attributePaths = "userGroup")
+    @Query(nativeQuery = true, value = "SELECT * FROM \"user\" WHERE email = :email AND status = 'ACTIVE';")
     Optional<UserEntity> findActiveUserByEmail(String email);
 
     @Query(nativeQuery = true, value = "SELECT * FROM \"user\" WHERE uuid = :uuid AND status = 'ACTIVE'")

@@ -16,7 +16,7 @@ import java.util.Set;
 
 @Getter
 @Entity(name = "access_control")
-@Table(name = "access_control")
+@Table(name = "access_control", schema = "public")
 public class AccessControlEntity extends BaseEntity {
 
     @OneToOne
@@ -28,7 +28,8 @@ public class AccessControlEntity extends BaseEntity {
     private RoleEntity role;
 
     @ManyToMany
-    @JoinTable(joinColumns = @JoinColumn(name = "access_control_id"),
+    @JoinTable(name = "access_control_object_group",
+            joinColumns = @JoinColumn(name = "access_control_id"),
             inverseJoinColumns = @JoinColumn(name = "object_group_id"))
     private Set<ObjectGroupEntity> objectGroups;
 }

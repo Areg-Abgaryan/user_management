@@ -16,7 +16,7 @@ import java.util.Set;
 
 @Getter
 @Entity(name = "role")
-@Table(name = "role")
+@Table(name = "role", schema = "public")
 public class RoleEntity extends BaseEntity {
 
     @Column(name = "name", unique = true, nullable = false)

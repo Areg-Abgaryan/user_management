@@ -1,0 +1,41 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
+
+    <changeSet id="create_role_permission_table" author="areg">
+
+        <createTable tableName="role_permission" schemaName="public">
+
+            <column name="role_id" type="bigint">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="permission_id" type="bigint">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+        </createTable>
+
+    </changeSet>
+
+    <!-- Add foreign key constraints to role_permission table -->
+    <changeSet id="add_fk_role_permission_role_id" author="areg">
+        <addForeignKeyConstraint baseTableName="role_permission"
+                                 baseColumnNames="role_id"
+                                 constraintName="fk_role_permission_role_id"
+                                 referencedTableName="role"
+                                 referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+    </changeSet>
+
+    <changeSet id="add_fk_role_permission_permission_id" author="areg">
+        <addForeignKeyConstraint baseTableName="role_permission"
+                                 baseColumnNames="permission_id"
+                                 constraintName="fk_role_permission_permission_id"
+                                 referencedTableName="permission"
+                                 referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+    </changeSet>
+
+</databaseChangeLog>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <!-- Include all the entity-specific changelog files -->
+    <include file="classpath:liquibase/entities/001_user_group.xml"/>
+    <include file="classpath:liquibase/entities/002_user.xml"/>
+    <include file="classpath:liquibase/entities/003_domain.xml"/>
+    <include file="classpath:liquibase/entities/004_permission.xml"/>
+    <include file="classpath:liquibase/entities/005_role.xml"/>
+    <include file="classpath:liquibase/entities/006_role_permission.xml"/>
+    <include file="classpath:liquibase/entities/007_object_group.xml"/>
+    <include file="classpath:liquibase/entities/008_object.xml"/>
+    <include file="classpath:liquibase/entities/009_access_control.xml"/>
+    <include file="classpath:liquibase/entities/010_access_control_object_group.xml"/>
+    <include file="classpath:liquibase/entities/011_refresh_token.xml"/>
+
+</databaseChangeLog>

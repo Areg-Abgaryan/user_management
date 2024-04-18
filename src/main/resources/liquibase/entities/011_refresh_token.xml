@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
+
+    <changeSet id="create_refresh_token_table" author="areg">
+
+        <createTable tableName="refresh_token" schemaName="public">
+
+            <!-- Include columns from BaseEntity -->
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <!-- Include columns from CreateUpdateEntity -->
+            <column name="uuid" type="varchar(255)">
+                <constraints unique="true" nullable="false"/>
+            </column>
+
+            <column name="created_at" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="updated_at" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+
+            <!-- Include columns specific to RefreshTokenEntity -->
+            <column name="token" type="varchar(255)">
+                <constraints unique="true" nullable="false"/>
+            </column>
+
+            <column name="salt" type="varchar(255)">
+                <constraints unique="true" nullable="false"/>
+            </column>
+
+            <column name="expiring_at" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="user_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+
+        </createTable>
+
+        <!-- Add foreign key constraint for user_id in refresh_token table -->
+        <addForeignKeyConstraint baseTableName="refresh_token"
+                                 baseColumnNames="user_id"
+                                 constraintName="fk_refresh_token_user_id"
+                                 referencedTableName="user"
+                                 referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+    </changeSet>
+
+    <!-- Add the alterTable changeSet for UUID conversion -->
+    <changeSet id="alter_uuid_column_type" author="areg">
+        <sql>
+            <![CDATA[ ALTER TABLE refresh_token ALTER COLUMN uuid SET DATA TYPE UUID USING uuid::UUID; ]]>
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>

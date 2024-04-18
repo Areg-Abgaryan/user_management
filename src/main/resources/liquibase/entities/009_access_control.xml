@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
+
+    <changeSet id="create_access_control_table" author="areg">
+
+        <createTable tableName="access_control" schemaName="public">
+
+            <!-- Include columns from BaseEntity -->
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <!-- Include columns specific to AccessControlEntity -->
+            <column name="user_group_id" type="bigint">
+                <constraints nullable="true"/>
+            </column>
+
+            <column name="role_id" type="bigint">
+                <constraints nullable="true"/>
+            </column>
+
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="access_control"
+                                 baseColumnNames="user_group_id"
+                                 constraintName="fk_access_control_user_group_id"
+                                 referencedTableName="user_group"
+                                 referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+        <addForeignKeyConstraint baseTableName="access_control"
+                                 baseColumnNames="role_id"
+                                 constraintName="fk_access_control_role_id"
+                                 referencedTableName="role"
+                                 referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+    </changeSet>
+
+</databaseChangeLog>

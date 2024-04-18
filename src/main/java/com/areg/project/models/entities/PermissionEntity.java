@@ -17,7 +17,7 @@ import java.util.Set;
 
 @Getter
 @Entity(name = "permission")
-@Table(name = "permission")
+@Table(name = "permission", schema = "public")
 public class PermissionEntity extends BaseEntity {
 
     @Column(name = "name", nullable = false)
@@ -34,7 +34,7 @@ public class PermissionEntity extends BaseEntity {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        PermissionEntity that = (PermissionEntity) o;
+        final var that = (PermissionEntity) o;
         return name.equals(that.name) && domain.equals(that.domain);
     }
 

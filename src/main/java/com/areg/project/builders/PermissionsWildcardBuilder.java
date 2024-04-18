@@ -62,9 +62,7 @@ public class PermissionsWildcardBuilder {
     }
 
 
-    private String buildPermissionsWildcard(DomainEntity domain, Set<ObjectEntity> objects,
-                                            Set<PermissionEntity> permissions) {
-
+    private String buildPermissionsWildcard(DomainEntity domain, Set<ObjectEntity> objects, Set<PermissionEntity> permissions) {
         List<PermissionEntity> result = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(permissions)) {
             result = permissions.stream()
@@ -75,8 +73,8 @@ public class PermissionsWildcardBuilder {
             return "";
         }
 
-        final String permissionsString = result.stream().map(permission -> permission.getName() + ",").collect(Collectors.joining());
-        final String objectsString = objects.stream().map(objectEntity -> objectEntity.getUuid().toString() + ",").collect(Collectors.joining());
+        final String permissionsString = result.stream().map(perm -> perm.getName() + ",").collect(Collectors.joining());
+        final String objectsString = objects.stream().map(obj -> obj.getUuid().toString() + ",").collect(Collectors.joining());
 
         return domain.getCode() + ":" + StringUtils.chop(permissionsString) + ":" + StringUtils.chop(objectsString);
     }

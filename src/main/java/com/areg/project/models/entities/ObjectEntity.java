@@ -18,7 +18,7 @@ import lombok.Getter;
 
 @Getter
 @Entity(name = "object")
-@Table(name = "object")
+@Table(name = "object", schema = "public")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "entity_type", discriminatorType = DiscriminatorType.STRING)
 public class ObjectEntity extends CreateUpdateEntity {

@@ -15,7 +15,7 @@ import lombok.Getter;
 
 @Getter
 @Entity(name = "domain")
-@Table(name = "domain")
+@Table(name = "domain", schema = "public")
 public class DomainEntity extends BaseEntity {
 
     @Column(name = "name", unique = true, nullable = false)
