@@ -9,16 +9,14 @@
         <createTable tableName="access_control_object_group" schemaName="public">
 
             <column name="access_control_id" type="bigint">
-                <constraints nullable="false"/>
+                <constraints primaryKey="true" nullable="false"/>
             </column>
 
             <column name="object_group_id" type="bigint">
-                <constraints nullable="false"/>
+                <constraints primaryKey="true" nullable="false"/>
             </column>
 
         </createTable>
-
-        <addPrimaryKey tableName="access_control_object_group" columnNames="access_control_id, object_group_id"/>
 
         <!-- Add foreign key constraints for the join table -->
         <addForeignKeyConstraint baseTableName="access_control_object_group"
@@ -27,12 +25,14 @@
                                  referencedTableName="access_control"
                                  referencedColumnNames="id"
                                  onDelete="CASCADE"/>
+
         <addForeignKeyConstraint baseTableName="access_control_object_group"
                                  baseColumnNames="object_group_id"
                                  constraintName="fk_access_control_object_group_object_group_id"
                                  referencedTableName="object_group"
                                  referencedColumnNames="id"
                                  onDelete="CASCADE"/>
+
     </changeSet>
 
 </databaseChangeLog>

@@ -37,7 +37,7 @@
 
 
     <!-- Add the alterTable changeSet for UUID conversion -->
-    <changeSet id="alter_uuid_column_type" author="areg">
+    <changeSet id="alter_uuid_column_type_in_object_group_table" author="areg">
         <sql>
             <![CDATA[ ALTER TABLE object_group ALTER COLUMN uuid SET DATA TYPE UUID USING uuid::UUID; ]]>
         </sql>

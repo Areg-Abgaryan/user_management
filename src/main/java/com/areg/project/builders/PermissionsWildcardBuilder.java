@@ -9,6 +9,7 @@ import com.areg.project.models.entities.DomainEntity;
 import com.areg.project.models.entities.ObjectEntity;
 import com.areg.project.models.entities.ObjectGroupEntity;
 import com.areg.project.models.entities.PermissionEntity;
+import com.areg.project.models.entities.RoleEntity;
 import com.areg.project.models.entities.UserEntity;
 import com.areg.project.models.entities.UserGroupEntity;
 import com.areg.project.services.implementations.AccessControlService;
@@ -49,20 +50,23 @@ public class PermissionsWildcardBuilder {
 
         final AccessControlEntity accessControl = accessControlService.getByUserGroupId(userGroup);
         final Set<ObjectGroupEntity> objectGroupSet = accessControl.getObjectGroups();
+        final Set<RoleEntity> roles = accessControl.getRoles();
+
+        final Set<PermissionEntity> permissions = new HashSet<>();
+        roles.forEach(role -> permissions.addAll(role.getPermissions()));
         final Set<String> wildcards = new HashSet<>();
 
         for (var objectGroup : objectGroupSet) {
             if (! objectGroup.getObjects().isEmpty()) {
                 final DomainEntity currentDomain = objectGroup.getObjects().stream().iterator().next().getDomain();
-                wildcards.add(buildPermissionsWildcard(
-                        currentDomain, objectGroup.getObjects(), accessControl.getRole().getPermissions()));
+                wildcards.add(buildPermissionsWildcard(currentDomain, objectGroup.getObjects(), permissions));
             }
         }
         return wildcards;
     }
 
 
-    private String buildPermissionsWildcard(DomainEntity domain, Set<ObjectEntity> objects, Set<PermissionEntity> permissions) {
+    private static String buildPermissionsWildcard(DomainEntity domain, Set<ObjectEntity> objects, Set<PermissionEntity> permissions) {
         List<PermissionEntity> result = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(permissions)) {
             result = permissions.stream()

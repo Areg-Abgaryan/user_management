@@ -23,9 +23,11 @@ public class AccessControlEntity extends BaseEntity {
     @JoinColumn(name = "user_group_id")
     private UserGroupEntity userGroup;
 
-    @OneToOne
-    @JoinColumn(name = "role_id", referencedColumnName = "id")
-    private RoleEntity role;
+    @ManyToMany
+    @JoinTable(name = "access_control_role",
+            joinColumns = @JoinColumn(name = "access_control_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id"))
+    private Set<RoleEntity> roles;
 
     @ManyToMany
     @JoinTable(name = "access_control_object_group",

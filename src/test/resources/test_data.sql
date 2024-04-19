@@ -95,9 +95,13 @@ INSERT INTO public.object (entity_type, created_at, updated_at, uuid, name, doma
 INSERT INTO public.object (entity_type, created_at, updated_at, uuid, name, domain_id, object_group_id) VALUES ('HOST', 1711221423, 1711221582, '0cee76f6-e63b-46b9-9265-5597cd61aaba', 'hostObj1', 4, 4);
 
 
-INSERT INTO public.access_control (role_id, user_group_id) VALUES (1, 1);
-INSERT INTO public.access_control (role_id, user_group_id) VALUES (2, 2);
-INSERT INTO public.access_control (role_id, user_group_id) VALUES (3, 3);
+INSERT INTO public.access_control (user_group_id) VALUES (1);
+INSERT INTO public.access_control (user_group_id) VALUES (2);
+INSERT INTO public.access_control (user_group_id) VALUES (3);
+
+INSERT INTO public.access_control_role (access_control_id, role_id) VALUES (1, 1);
+INSERT INTO public.access_control_role (access_control_id, role_id) VALUES (2, 2);
+INSERT INTO public.access_control_role (access_control_id, role_id) VALUES (3, 3);
 
 
 INSERT INTO public.access_control_object_group (access_control_id, object_group_id) VALUES (1, 1);

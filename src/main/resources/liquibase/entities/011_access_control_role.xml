@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
+
+    <changeSet id="create_access_control_role_table" author="your_name_here">
+
+        <createTable tableName="access_control_role" schemaName="public">
+
+            <column name="access_control_id" type="bigint">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="role_id" type="bigint">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+        </createTable>
+
+        <!-- Add foreign key constraints for the join table -->
+        <addForeignKeyConstraint baseTableName="access_control_role"
+                                 baseColumnNames="access_control_id"
+                                 constraintName="fk_access_control_role_access_control_id"
+                                 referencedTableName="access_control"
+                                 referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+
+        <addForeignKeyConstraint baseTableName="access_control_role"
+                                 baseColumnNames="role_id"
+                                 constraintName="fk_access_control_role_role_id"
+                                 referencedTableName="role"
+                                 referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+
+    </changeSet>
+
+</databaseChangeLog>

@@ -55,7 +55,7 @@
     </changeSet>
 
     <!-- Add the alterTable changeSet for UUID conversion -->
-    <changeSet id="alter_uuid_column_type" author="areg">
+    <changeSet id="alter_uuid_column_type_in_refresh_token_table" author="areg">
         <sql>
             <![CDATA[ ALTER TABLE refresh_token ALTER COLUMN uuid SET DATA TYPE UUID USING uuid::UUID; ]]>
         </sql>

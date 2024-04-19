@@ -27,4 +27,7 @@ public class RoleEntity extends BaseEntity {
             joinColumns = @JoinColumn(name = "role_id"),
             inverseJoinColumns = @JoinColumn(name = "permission_id"))
     private Set<PermissionEntity> permissions;
+
+    @ManyToMany(mappedBy = "roles")
+    private Set<AccessControlEntity> accessControls;
 }
