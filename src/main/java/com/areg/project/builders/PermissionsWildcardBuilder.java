@@ -42,24 +42,34 @@ public class PermissionsWildcardBuilder {
 
     //  Build user permission wildcard by user email
     public Set<String> build(String email) {
+        //  Get user, user groups and validate
         final UserEntity userById = userService.getActiveUserByEmail(email);
-        final UserGroupEntity userGroup = userById.getUserGroup();
-        if (userGroup == null) {
+        final Set<UserGroupEntity> userGroups = userById.getUserGroups();
+        if (CollectionUtils.isEmpty(userGroups)) {
             return Collections.emptySet();
         }
 
-        final AccessControlEntity accessControl = accessControlService.getByUserGroupId(userGroup);
-        final Set<ObjectGroupEntity> objectGroupSet = accessControl.getObjectGroups();
-        final Set<RoleEntity> roles = accessControl.getRoles();
+        //  Collect user groups' ids
+        final Set<Long> set = new HashSet<>();
+        for (var userGroup : userGroups) {
+            final Long id = userGroup.getId();
+            set.add(id);
+        }
 
-        final Set<PermissionEntity> permissions = new HashSet<>();
-        roles.forEach(role -> permissions.addAll(role.getPermissions()));
+        final Set<AccessControlEntity> accessControls = accessControlService.getByUserGroupIds(set);
         final Set<String> wildcards = new HashSet<>();
 
-        for (var objectGroup : objectGroupSet) {
-            if (! objectGroup.getObjects().isEmpty()) {
-                final DomainEntity currentDomain = objectGroup.getObjects().stream().iterator().next().getDomain();
-                wildcards.add(buildPermissionsWildcard(currentDomain, objectGroup.getObjects(), permissions));
+        for (var accessControl : accessControls) {
+            final Set<ObjectGroupEntity> objectGroupSet = accessControl.getObjectGroups();
+            final Set<RoleEntity> roles = accessControl.getRoles();
+            final Set<PermissionEntity> permissions = new HashSet<>();
+            roles.forEach(x-> permissions.addAll(x.getPermissions()));
+
+            for (var objectGroup : objectGroupSet) {
+                if (! objectGroup.getObjects().isEmpty()) {
+                    final DomainEntity currentDomain = objectGroup.getObjects().stream().iterator().next().getDomain();
+                    wildcards.add(buildPermissionsWildcard(currentDomain, objectGroup.getObjects(), permissions));
+                }
             }
         }
         return wildcards;

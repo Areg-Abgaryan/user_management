@@ -3,11 +3,18 @@ INSERT INTO public.user_group (uuid, name, created_at, updated_at) VALUES ('2eee
 INSERT INTO public.user_group (uuid, name, created_at, updated_at) VALUES ('3eee76f6-e63b-46b9-9265-5597cd61aaba', 'ReadOnlyGroup', 1711221423, 1711221582);
 
 
-INSERT INTO public.user (created_at, updated_at, email, uuid, first_name, last_login_at, last_name, otp, otp_creation_time, password, salt, status, user_group_id) VALUES (1711218201, 1711221100, 'user@gmail.com', '0c6237a8-a731-4f4a-a45d-b4c5b4291741', 'User1', 1711220209, 'Useryan', '012345', '1709937187', 'A4X6T6/cGTSqRS9jvj/x1LgLnacVRKU3qN/U4mqskmg=', 'xl3h&2bWF&23GxI2', 'ACTIVE', 2);
-INSERT INTO public.user (created_at, updated_at, email, uuid, first_name, last_login_at, last_name, otp, otp_creation_time, password, salt, status, user_group_id) VALUES (1711218201, 1711221100, 'user1@gmail.com', '8c6237a8-a731-4f4a-a45d-b4c5b4291742', 'User2', 1711221208, 'Useryan', '123456', '1709937187', 'B5X6T6/cGTSqRS9jvj/x1LgLnacVRKU3qN/U4mqskmg=', 'xl3h&2bWF&23GxI2', 'UNVERIFIED', 2);
-INSERT INTO public.user (created_at, updated_at, email, uuid, first_name, last_login_at, last_name, otp, otp_creation_time, password, salt, status, user_group_id) VALUES (1711218201, 1711221100, 'user2@gmail.com', '6c6237a8-a731-4f4a-a45d-b4c5b4291743', 'User3', 1711222207, 'Ueryan', '234567', '1709937187', 'C6X6T6/cGTSqRS9jvj/x1LgLnacVRKU3qN/U4mqskmg=', 'xl3h&2bWF&23GxI2', 'ACTIVE', 2);
-INSERT INTO public.user (created_at, updated_at, email, uuid, first_name, last_login_at, last_name, otp, otp_creation_time, password, salt, status, user_group_id) VALUES (1711218201, 1711221100, 'user3@gmail.com', '4c6237a8-a731-4f4a-a45d-b4c5b4291744', 'User4', 1711223206, 'Useyan', '345678', '1709937187', 'D7X6T6/cGTSqRS9jvj/x1LgLnacVRKU3qN/U4mqskmg=', 'xl3h&2bWF&23GxI2', 'UNVERIFIED', 2);
-INSERT INTO public.user (created_at, updated_at, email, uuid, first_name, last_login_at, last_name, otp, otp_creation_time, password, salt, status, user_group_id) VALUES (1711218201, 1711221100, 'user4@gmail.com', '2c6237a8-a731-4f4a-a45d-b4c5b4291745', 'User5', 1711224205, 'Useryan', '456789', '1709937187', 'E8X6T6/cGTSqRS9jvj/x1LgLnacVRKU3qN/U4mqskmg=', 'xl3h&2bWF&23GxI2', 'DELETED', 2);
+INSERT INTO public.user (created_at, updated_at, email, uuid, first_name, last_login_at, last_name, otp, otp_creation_time, password, salt, status) VALUES (1711218201, 1711221100, 'user@gmail.com', '0c6237a8-a731-4f4a-a45d-b4c5b4291741', 'User1', 1711220209, 'Useryan', '012345', '1709937187', 'A4X6T6/cGTSqRS9jvj/x1LgLnacVRKU3qN/U4mqskmg=', 'xl3h&2bWF&23GxI2', 'ACTIVE');
+INSERT INTO public.user (created_at, updated_at, email, uuid, first_name, last_login_at, last_name, otp, otp_creation_time, password, salt, status) VALUES (1711218201, 1711221100, 'user1@gmail.com', '8c6237a8-a731-4f4a-a45d-b4c5b4291742', 'User2', 1711221208, 'Useryan', '123456', '1709937187', 'B5X6T6/cGTSqRS9jvj/x1LgLnacVRKU3qN/U4mqskmg=', 'xl3h&2bWF&23GxI2', 'UNVERIFIED');
+INSERT INTO public.user (created_at, updated_at, email, uuid, first_name, last_login_at, last_name, otp, otp_creation_time, password, salt, status) VALUES (1711218201, 1711221100, 'user2@gmail.com', '6c6237a8-a731-4f4a-a45d-b4c5b4291743', 'User3', 1711222207, 'Ueryan', '234567', '1709937187', 'C6X6T6/cGTSqRS9jvj/x1LgLnacVRKU3qN/U4mqskmg=', 'xl3h&2bWF&23GxI2', 'ACTIVE');
+INSERT INTO public.user (created_at, updated_at, email, uuid, first_name, last_login_at, last_name, otp, otp_creation_time, password, salt, status) VALUES (1711218201, 1711221100, 'user3@gmail.com', '4c6237a8-a731-4f4a-a45d-b4c5b4291744', 'User4', 1711223206, 'Useyan', '345678', '1709937187', 'D7X6T6/cGTSqRS9jvj/x1LgLnacVRKU3qN/U4mqskmg=', 'xl3h&2bWF&23GxI2', 'UNVERIFIED');
+INSERT INTO public.user (created_at, updated_at, email, uuid, first_name, last_login_at, last_name, otp, otp_creation_time, password, salt, status) VALUES (1711218201, 1711221100, 'user4@gmail.com', '2c6237a8-a731-4f4a-a45d-b4c5b4291745', 'User5', 1711224205, 'Useryan', '456789', '1709937187', 'E8X6T6/cGTSqRS9jvj/x1LgLnacVRKU3qN/U4mqskmg=', 'xl3h&2bWF&23GxI2', 'DELETED');
+
+
+INSERT INTO public.user_user_group(user_id, user_group_id) VALUES (1, 2);
+INSERT INTO public.user_user_group(user_id, user_group_id) VALUES (2, 2);
+INSERT INTO public.user_user_group(user_id, user_group_id) VALUES (3, 2);
+INSERT INTO public.user_user_group(user_id, user_group_id) VALUES (4, 2);
+INSERT INTO public.user_user_group(user_id, user_group_id) VALUES (5, 2);
 
 
 INSERT INTO public.domain (code, name) VALUES ('vm', 'virtual machine');

@@ -18,10 +18,6 @@
                 <constraints nullable="true"/>
             </column>
 
-            <column name="role_id" type="bigint">
-                <constraints nullable="true"/>
-            </column>
-
         </createTable>
 
         <addForeignKeyConstraint baseTableName="access_control"
@@ -30,12 +26,7 @@
                                  referencedTableName="user_group"
                                  referencedColumnNames="id"
                                  onDelete="CASCADE"/>
-        <addForeignKeyConstraint baseTableName="access_control"
-                                 baseColumnNames="role_id"
-                                 constraintName="fk_access_control_role_id"
-                                 referencedTableName="role"
-                                 referencedColumnNames="id"
-                                 onDelete="CASCADE"/>
+
     </changeSet>
 
 </databaseChangeLog>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="create_user_user_group_table" author="areg">
+
+        <createTable tableName="user_user_group">
+
+            <column name="user_id" type="bigint">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="user_group_id" type="bigint">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+        </createTable>
+
+        <!-- Add foreign key constraints for the join table -->
+        <addForeignKeyConstraint baseTableName="user_user_group"
+                                 baseColumnNames="user_id"
+                                 constraintName="fk_user_user_group_user_id"
+                                 referencedTableName="user"
+                                 referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+
+        <addForeignKeyConstraint baseTableName="user_user_group"
+                                 baseColumnNames="user_group_id"
+                                 constraintName="fk_user_user_group_user_group_id"
+                                 referencedTableName="user_group"
+                                 referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+
+    </changeSet>
+
+</databaseChangeLog>

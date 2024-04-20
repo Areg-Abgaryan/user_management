@@ -5,9 +5,9 @@
 package com.areg.project.models.entities;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Column;
-import jakarta.persistence.OneToMany;
 
 import lombok.Getter;
 
@@ -21,6 +21,6 @@ public class UserGroupEntity extends CreateUpdateEntity {
     @Column(name = "name", unique = true, nullable = false)
     private String name;
 
-    @OneToMany(mappedBy = "userGroup")
+    @ManyToMany(mappedBy = "userGroups")
     private Set<UserEntity> users;
 }

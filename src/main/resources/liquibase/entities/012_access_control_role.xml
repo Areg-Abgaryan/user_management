@@ -4,7 +4,7 @@
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
 
-    <changeSet id="create_access_control_role_table" author="your_name_here">
+    <changeSet id="create_access_control_role_table" author="areg">
 
         <createTable tableName="access_control_role" schemaName="public">
 

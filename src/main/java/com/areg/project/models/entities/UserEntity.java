@@ -5,18 +5,21 @@
 package com.areg.project.models.entities;
 
 import com.areg.project.models.enums.UserStatus;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import org.springframework.data.annotation.CreatedDate;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Column;
 
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.Set;
 
 @Getter @Setter
 @Entity(name = "user")
@@ -53,7 +56,9 @@ public class UserEntity extends CreateUpdateEntity {
     @Column(name = "otp_creation_time")
     private long otpCreationTime;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_group_id")
-    private UserGroupEntity userGroup;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "user_user_group",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_group_id"))
+    private Set<UserGroupEntity> userGroups;
 }

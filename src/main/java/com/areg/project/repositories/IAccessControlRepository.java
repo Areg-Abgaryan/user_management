@@ -8,10 +8,10 @@ import com.areg.project.models.entities.AccessControlEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
+import java.util.Set;
 
 @Repository
 public interface IAccessControlRepository extends JpaRepository<AccessControlEntity, Long> {
 
-    Optional<AccessControlEntity> findByUserGroupId(Long userGroupId);
+    Set<AccessControlEntity> findByUserGroupIdIn(Set<Long> userGroupIds);
 }

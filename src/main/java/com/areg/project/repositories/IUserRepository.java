@@ -22,7 +22,7 @@ public interface IUserRepository extends JpaRepository<UserEntity, Long> {
 
     Optional<UserEntity> findByEmail(String email);
 
-    @EntityGraph(attributePaths = "userGroup")
+    @EntityGraph(attributePaths = "userGroups")
     @Query("SELECT u FROM user u WHERE u.email = :email AND u.status = 'ACTIVE'")
     Optional<UserEntity> findActiveUserByEmail(String email);
 

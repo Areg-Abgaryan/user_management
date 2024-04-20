@@ -7,15 +7,16 @@
     <!-- Include all the entity-specific changelog files -->
     <include file="classpath:liquibase/entities/001_user_group.xml"/>
     <include file="classpath:liquibase/entities/002_user.xml"/>
-    <include file="classpath:liquibase/entities/003_refresh_token.xml"/>
-    <include file="classpath:liquibase/entities/004_domain.xml"/>
-    <include file="classpath:liquibase/entities/005_permission.xml"/>
-    <include file="classpath:liquibase/entities/006_role.xml"/>
-    <include file="classpath:liquibase/entities/007_role_permission.xml"/>
-    <include file="classpath:liquibase/entities/008_object_group.xml"/>
-    <include file="classpath:liquibase/entities/009_object.xml"/>
-    <include file="classpath:liquibase/entities/010_access_control.xml"/>
-    <include file="classpath:liquibase/entities/011_access_control_role.xml"/>
-    <include file="classpath:liquibase/entities/012_access_control_object_group.xml"/>
+    <include file="classpath:liquibase/entities/003_user_user_group.xml"/>
+    <include file="classpath:liquibase/entities/004_refresh_token.xml"/>
+    <include file="classpath:liquibase/entities/005_domain.xml"/>
+    <include file="classpath:liquibase/entities/006_permission.xml"/>
+    <include file="classpath:liquibase/entities/007_role.xml"/>
+    <include file="classpath:liquibase/entities/008_role_permission.xml"/>
+    <include file="classpath:liquibase/entities/009_object_group.xml"/>
+    <include file="classpath:liquibase/entities/010_object.xml"/>
+    <include file="classpath:liquibase/entities/011_access_control.xml"/>
+    <include file="classpath:liquibase/entities/012_access_control_role.xml"/>
+    <include file="classpath:liquibase/entities/013_access_control_object_group.xml"/>
 
 </databaseChangeLog>
