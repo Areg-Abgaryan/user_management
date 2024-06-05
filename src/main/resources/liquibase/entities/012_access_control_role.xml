@@ -8,7 +8,7 @@
 
         <createTable tableName="access_control_role" schemaName="public">
 
-            <column name="access_control_id" type="bigint">
+            <column name="id" type="bigint">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
 
@@ -20,7 +20,7 @@
 
         <!-- Add foreign key constraints for the join table -->
         <addForeignKeyConstraint baseTableName="access_control_role"
-                                 baseColumnNames="access_control_id"
+                                 baseColumnNames="id"
                                  constraintName="fk_access_control_role_access_control_id"
                                  referencedTableName="access_control"
                                  referencedColumnNames="id"
